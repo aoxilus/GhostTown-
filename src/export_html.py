@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import shutil
+import time
 from pathlib import Path
 
 import bleach
@@ -23,6 +24,24 @@ def _load_index() -> dict:
     return json.loads(INDEX.read_text(encoding="utf-8"))
 
 
+def _wipe(path: Path) -> None:
+    if not path.exists():
+        return
+    for attempt in range(5):
+        try:
+            shutil.rmtree(path)
+            return
+        except PermissionError:
+            time.sleep(0.4 * (attempt + 1))
+    # last resort: empty contents
+    for child in path.rglob("*"):
+        if child.is_file():
+            try:
+                child.unlink()
+            except PermissionError:
+                pass
+
+
 def build() -> dict:
     idx = _load_index()
     msgs = list(idx.get("messages", {}).values())
@@ -30,12 +49,10 @@ def build() -> dict:
 
     GHOST.mkdir(parents=True, exist_ok=True)
     threads = GHOST / "threads"
-    if threads.exists():
-        shutil.rmtree(threads)
-    threads.mkdir()
+    _wipe(threads)
+    threads.mkdir(parents=True, exist_ok=True)
     att_out = GHOST / "attachments"
-    if att_out.exists():
-        shutil.rmtree(att_out)
+    _wipe(att_out)
     src_att = DATA / "attachments"
     if src_att.exists():
         shutil.copytree(src_att, att_out)

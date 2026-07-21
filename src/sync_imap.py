@@ -67,51 +67,55 @@ def sync(folders: list[str] | None = None, limit: int | None = None) -> dict:
                 continue
             mb.folder.set(folder)
             seen = set(state.setdefault("uids", {}).setdefault(folder, []))
-            criteria = AND(all=True)
-            count = 0
-            for msg in mb.fetch(criteria, mark_seen=False, bulk=True):
-                if msg.uid in seen:
-                    continue
-                key = f"{folder}:{msg.uid}"
-                att_dir = DATA / "attachments" / _safe_name(key.replace(":", "_"), msg.uid)
-                att_meta = []
-                if msg.attachments:
-                    att_dir.mkdir(parents=True, exist_ok=True)
-                    for i, att in enumerate(msg.attachments):
-                        fname = _safe_name(att.filename or f"att_{i}", f"att_{i}")
-                        fpath = att_dir / fname
-                        fpath.write_bytes(att.payload)
-                        att_meta.append(
-                            {
-                                "filename": fname,
-                                "path": str(fpath.relative_to(DATA / "attachments")).replace("\\", "/"),
-                            }
-                        )
+            all_uids = mb.uids(AND(all=True))
+            new_uids = [u for u in all_uids if u not in seen]
+            new_uids.reverse()  # newest first
+            if limit:
+                new_uids = new_uids[: limit - fetched]
+            print(f"{folder}: {len(new_uids)} nuevos de {len(all_uids)}", flush=True)
 
-                date_iso = None
-                if msg.date:
-                    dt = msg.date
-                    if dt.tzinfo is None:
-                        dt = dt.replace(tzinfo=timezone.utc)
-                    date_iso = dt.isoformat()
+            CHUNK = 50
+            for start in range(0, len(new_uids), CHUNK):
+                chunk = new_uids[start : start + CHUNK]
+                for msg in mb.fetch(AND(uid=",".join(chunk)), mark_seen=False, bulk=True):
+                    key = f"{folder}:{msg.uid}"
+                    att_dir = DATA / "attachments" / _safe_name(key.replace(":", "_"), msg.uid)
+                    att_meta = []
+                    if msg.attachments:
+                        att_dir.mkdir(parents=True, exist_ok=True)
+                        for i, att in enumerate(msg.attachments):
+                            fname = _safe_name(att.filename or f"att_{i}", f"att_{i}")
+                            fpath = att_dir / fname
+                            fpath.write_bytes(att.payload)
+                            att_meta.append(
+                                {
+                                    "filename": fname,
+                                    "path": str(fpath.relative_to(DATA / "attachments")).replace("\\", "/"),
+                                }
+                            )
 
-                index["messages"][key] = {
-                    "id": key,
-                    "uid": msg.uid,
-                    "folder": folder,
-                    "subject": msg.subject or "(no subject)",
-                    "from": str(msg.from_) if msg.from_ else "",
-                    "to": [str(x) for x in (msg.to or [])],
-                    "date": date_iso,
-                    "text": (msg.text or "")[:50000],
-                    "html": (msg.html or "")[:100000],
-                    "attachments": att_meta,
-                }
-                seen.add(msg.uid)
-                fetched += 1
-                count += 1
-                if limit and fetched >= limit:
-                    break
+                    date_iso = None
+                    if msg.date:
+                        dt = msg.date
+                        if dt.tzinfo is None:
+                            dt = dt.replace(tzinfo=timezone.utc)
+                        date_iso = dt.isoformat()
+
+                    index["messages"][key] = {
+                        "id": key,
+                        "uid": msg.uid,
+                        "folder": folder,
+                        "subject": msg.subject or "(no subject)",
+                        "from": str(msg.from_) if msg.from_ else "",
+                        "to": [str(x) for x in (msg.to or [])],
+                        "date": date_iso,
+                        "text": (msg.text or "")[:50000],
+                        "html": (msg.html or "")[:100000],
+                        "attachments": att_meta,
+                    }
+                    seen.add(msg.uid)
+                    fetched += 1
+                print(f"  {fetched} bajados...", flush=True)
             state["uids"][folder] = sorted(seen)
             if limit and fetched >= limit:
                 break
