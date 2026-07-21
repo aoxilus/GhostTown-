@@ -12,6 +12,21 @@ from imap_tools import AND, MailBox
 from .config import DATA, INDEX, STATE, get_settings
 
 SAFE = re.compile(r"[^\w.\-]+", re.UNICODE)
+PROGRESS = DATA / "sync_progress.json"
+
+
+def _write_progress(**kw) -> None:
+    """Estado vivo del sync para la UI (barra de progreso)."""
+    try:
+        DATA.mkdir(parents=True, exist_ok=True)
+        current = {}
+        if PROGRESS.exists():
+            current = json.loads(PROGRESS.read_text(encoding="utf-8"))
+        current.update(kw)
+        current["updated_at"] = datetime.now(timezone.utc).isoformat()
+        PROGRESS.write_text(json.dumps(current, ensure_ascii=False), encoding="utf-8")
+    except Exception:
+        pass
 
 
 def _load_json(path: Path, default):
@@ -57,6 +72,7 @@ def sync(folders: list[str] | None = None, limit: int | None = None) -> dict:
     state: dict = _load_json(STATE, {"uids": {}})
     fetched = 0
     errors: list[str] = []
+    _write_progress(status="running", folder="conectando…", fetched=0, folder_done=0, folder_total=0, errors=[])
 
     with MailBox(s.imap_host).login(s.imap_user, s.imap_password) as mb:
         available_list = [f.name for f in mb.folder.list()]
@@ -114,6 +130,7 @@ def sync(folders: list[str] | None = None, limit: int | None = None) -> dict:
                 remain = max(0, limit - fetched)
                 new_uids = new_uids[:remain]
             print(f"{folder}: {len(new_uids)} nuevos de {len(all_uids)}", flush=True)
+            _write_progress(status="running", folder=folder, folder_done=0, folder_total=len(new_uids), fetched=fetched, errors=errors)
 
             CHUNK = 50
             for start in range(0, len(new_uids), CHUNK):
@@ -157,6 +174,7 @@ def sync(folders: list[str] | None = None, limit: int | None = None) -> dict:
                     seen.add(msg.uid)
                     fetched += 1
                 print(f"  {fetched} bajados...", flush=True)
+                _write_progress(status="running", folder=folder, folder_done=min(start + CHUNK, len(new_uids)), folder_total=len(new_uids), fetched=fetched, errors=errors)
             state["uids"][folder] = sorted(seen)
             if limit and fetched >= limit:
                 break
@@ -164,4 +182,5 @@ def sync(folders: list[str] | None = None, limit: int | None = None) -> dict:
     state["last_sync"] = datetime.now(timezone.utc).isoformat()
     _save_json(INDEX, index)
     _save_json(STATE, state)
+    _write_progress(status="done", folder="", fetched=fetched, errors=errors)
     return {"fetched": fetched, "total": len(index["messages"]), "errors": errors}

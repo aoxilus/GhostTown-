@@ -181,16 +181,102 @@ if (form) {
   });
 }
 
+// ---- barra de progreso de descarga ----
+const banner = document.getElementById("sync-banner");
+const syncLabel = document.getElementById("sync-label");
+const syncFill = document.getElementById("sync-fill");
+const syncCount = document.getElementById("sync-count");
+const syncErrors = document.getElementById("sync-errors");
 const btnSync = document.getElementById("btn-sync");
+let pollTimer = null;
+
+function folderPretty(f) {
+  const names = {
+    "INBOX": "Recibidos",
+    "[Gmail]/All Mail": "Todos los correos",
+    "[Gmail]/Sent Mail": "Enviados",
+    "[Gmail]/Starred": "Destacados",
+    "[Gmail]/Important": "Importantes",
+  };
+  return names[f] || f;
+}
+
+function renderSyncStatus(st) {
+  if (!st || st.status === "idle") {
+    banner.classList.add("hidden");
+    syncErrors.classList.add("hidden");
+    return false;
+  }
+  banner.classList.remove("hidden");
+  banner.classList.toggle("done", st.status === "done");
+  banner.classList.toggle("error", st.status === "error");
+
+  if (st.status === "running") {
+    const total = st.folder_total || 0;
+    const done = st.folder_done || 0;
+    syncLabel.textContent = "Descargando " + folderPretty(st.folder || "…");
+    if (total > 0) {
+      syncFill.classList.remove("indeterminate");
+      syncFill.style.width = Math.min(100, (done / total) * 100) + "%";
+      syncCount.textContent = done.toLocaleString() + " / " + total.toLocaleString();
+    } else {
+      syncFill.classList.add("indeterminate");
+      syncCount.textContent = (st.fetched || 0).toLocaleString() + " bajados";
+    }
+  } else if (st.status === "done") {
+    syncLabel.textContent = "Descarga completa";
+    syncFill.classList.remove("indeterminate");
+    syncFill.style.width = "100%";
+    syncCount.textContent = (st.fetched || 0).toLocaleString() + " correos";
+  } else if (st.status === "error") {
+    syncLabel.textContent = "Error en la descarga";
+    syncFill.classList.remove("indeterminate");
+    syncCount.textContent = "";
+  }
+
+  const errs = (st.errors || []).concat(st.error ? [st.error] : []);
+  if (errs.length) {
+    syncErrors.classList.remove("hidden");
+    syncErrors.textContent = "Avisos: " + errs.join(" · ");
+  } else {
+    syncErrors.classList.add("hidden");
+  }
+  return st.status === "running";
+}
+
+let sawRunning = false;
+
+async function pollSync() {
+  try {
+    const r = await fetch("/api/sync-status");
+    const st = await r.json();
+    const running = renderSyncStatus(st);
+    if (running) {
+      sawRunning = true;
+      pollTimer = setTimeout(pollSync, 2000);
+    } else {
+      if (btnSync) { btnSync.disabled = false; btnSync.textContent = "Sync"; }
+      if (!sawRunning) {
+        // estado viejo de un sync anterior: no mostrar banner al cargar
+        banner.classList.add("hidden");
+        syncErrors.classList.add("hidden");
+      } else if (st.status === "done") {
+        setTimeout(() => location.reload(), 1200);
+      }
+    }
+  } catch (e) {
+    pollTimer = setTimeout(pollSync, 4000);
+  }
+}
+
 if (btnSync) {
   btnSync.onclick = async () => {
     btnSync.disabled = true;
     btnSync.textContent = "Bajando…";
     try {
-      const r = await fetch("/api/sync", { method: "POST" });
-      const d = await r.json();
-      alert("Correos nuevos: " + d.fetched + " (total " + d.total + ")");
-      location.reload();
+      await fetch("/api/sync", { method: "POST" });
+      sawRunning = true;
+      pollSync();
     } catch (err) {
       alert("Sync falló: " + err);
       btnSync.disabled = false;
@@ -198,3 +284,6 @@ if (btnSync) {
     }
   };
 }
+
+// si hay un sync corriendo (ej. desde la terminal), mostrar la barra al cargar
+pollSync();

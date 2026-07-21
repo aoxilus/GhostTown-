@@ -9,11 +9,15 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+import threading
+
 from .ai_clean import chat as ai_chat
 from .ai_clean import trash_ids
 from .config import DATA, GHOST, INDEX, ROOT, TEMPLATES, get_settings
 from .export_html import build
-from .sync_imap import sync, verify
+from .sync_imap import PROGRESS, _write_progress, sync, verify
+
+_sync_thread: threading.Thread | None = None
 
 app = FastAPI(title="GmailGhostTown")
 
@@ -53,11 +57,31 @@ def stats():
     return {"messages": n, "ghost_ready": (GHOST / "index.html").exists()}
 
 
+def _sync_job(limit: int | None):
+    try:
+        sync(limit=limit)
+        build()
+        _write_progress(status="done")
+    except Exception as e:
+        _write_progress(status="error", error=str(e))
+
+
 @app.post("/api/sync")
 def api_sync(limit: int | None = None):
-    result = sync(limit=limit)
-    build()
-    return result
+    """Launch sync in background; UI polls /api/sync-status."""
+    global _sync_thread
+    if _sync_thread and _sync_thread.is_alive():
+        return {"started": False, "running": True}
+    _sync_thread = threading.Thread(target=_sync_job, args=(limit,), daemon=True)
+    _sync_thread.start()
+    return {"started": True, "running": True}
+
+
+@app.get("/api/sync-status")
+def api_sync_status():
+    if PROGRESS.exists():
+        return json.loads(PROGRESS.read_text(encoding="utf-8"))
+    return {"status": "idle"}
 
 
 @app.post("/api/build")
