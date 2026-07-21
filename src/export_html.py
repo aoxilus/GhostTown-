@@ -94,7 +94,8 @@ def build() -> dict:
     for m in msgs:
         counts[m["folder"]] = counts.get(m["folder"], 0) + 1
     remote_counts = state.get("folder_totals", {})
-    all_folders = set(counts) | set(remote_counts)
+    hidden = {"[Gmail]/All Mail", "[Gmail]/Trash", "[Gmail]/Spam", "[Gmail]/Drafts"}
+    all_folders = (set(counts) | set(remote_counts)) - hidden
     # Sidebar: hide All Mail (shown as "Todos"); prefer Gmail system folders then custom
     priority = {
         "INBOX": 0,
@@ -113,7 +114,7 @@ def build() -> dict:
             "remote_count": remote_counts.get(f, counts.get(f, 0)),
         }
         for f in sorted(
-            (name for name in all_folders if name != "[Gmail]/All Mail"),
+            all_folders,
             key=lambda name: (priority.get(name, 50), -remote_counts.get(name, counts.get(name, 0)), name),
         )
     ]

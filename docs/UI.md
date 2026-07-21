@@ -16,8 +16,8 @@
 - Prev/next arriba y abajo
 
 ## Sync de carpetas
-Por defecto baja: All Mail, INBOX, Sent + labels custom (no `[Gmail]/…` extras).
-Spam/Trash se listan en stats; sync explícito con `--folder`.
+Por defecto baja: All Mail, INBOX, Sent + labels custom.
+**Nunca copia Trash / Spam / Drafts** (ni aparecen en el sidebar); sync explícito con `--folder` si se quisieran.
 
 ## Rebuild rápido
 `build` no reescribe threads HTML que ya existen (solo índice + pages nuevas).
