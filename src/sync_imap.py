@@ -72,7 +72,13 @@ def sync(folders: list[str] | None = None, limit: int | None = None) -> dict:
             # Never copy Trash / Spam / Drafts by default
             excluded = {"[Gmail]/Trash", "[Gmail]/Spam", "[Gmail]/Drafts"}
             custom = [name for name in available_list if not name.startswith("[Gmail]/")]
-            preferred = ["[Gmail]/All Mail", "INBOX", "[Gmail]/Sent Mail"]
+            preferred = [
+                "[Gmail]/All Mail",
+                "INBOX",
+                "[Gmail]/Sent Mail",
+                "[Gmail]/Starred",
+                "[Gmail]/Important",
+            ]
             folders = list(
                 dict.fromkeys(
                     name for name in preferred + custom if name in available and name not in excluded
