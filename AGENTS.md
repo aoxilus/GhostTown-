@@ -1,7 +1,13 @@
 # AGENTS.md - Instrucciones para agentes de IA
 
 Este proyecto respalda correos de Gmail vía IMAP y usa credenciales sensibles.
-Cualquier agente de IA (Cursor, Copilot, Claude, etc.) DEBE seguir estas reglas.
+Cualquier agente de IA (Cursor, Copilot, Claude, Codex, etc.) DEBE seguir estas reglas.
+
+**Documentación completa:**
+
+- [`docs/AI_SECURITY.md`](docs/AI_SECURITY.md) — reglas obligatorias para AIs (léelo primero)
+- [`docs/SECURITY.md`](docs/SECURITY.md) — modelo de amenazas y setup humano
+- [`docs/README.md`](docs/README.md) — índice
 
 ## Regla #1: Nunca subir secretos ni correos a GitHub
 
@@ -29,10 +35,12 @@ Está TERMINANTEMENTE PROHIBIDO agregar/commitear/pushear:
 - `.gitignore` bloquea secretos, correos y adjuntos.
 - Hay un git pre-commit hook (`.githooks/pre-commit`) que aborta el commit
   si detecta archivos prohibidos o patrones de secretos. No lo desactives.
+- Regla Cursor: `.cursor/rules/seguridad.mdc` (alwaysApply).
 
 ## Estructura del proyecto
 
 - `src/` - código Python (IMAP sync, limpieza con IA, servidor web)
 - `templates/` - frontend HTML/JS/CSS
 - `scripts/` - scripts de setup y arranque (PowerShell)
+- `docs/` - documentación de seguridad (humanos + AIs)
 - `data/`, `ghosttown/` - datos locales generados (NUNCA en git)

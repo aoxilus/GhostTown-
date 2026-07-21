@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>GhostTown</title>
-  <link rel="stylesheet" href="/styles.css?v=2" />
+  <link rel="stylesheet" href="/styles.css?v=4" />
 </head>
 <body>
   <header class="topbar">
@@ -31,28 +31,39 @@
         {% for f in folders %}
         <li class="nav-item" data-folder="{{ f.id }}">
           <span class="nav-name">{{ f.name }}</span>
-          <span class="nav-count">{{ f.count }}</span>
+          <span class="nav-count">{{ f.remote_count }}</span>
         </li>
         {% endfor %}
       </ul>
+      <section class="stats-card">
+        <div class="progress-ring" style="--progress: {{ stats.percent }}%">
+          <span>{{ stats.percent }}%</span>
+        </div>
+        <div>
+          <strong>{{ "{:,}".format(stats.downloaded) }}</strong>
+          <span>de {{ "{:,}".format(stats.remote_total) }}</span>
+        </div>
+        <p>Última actualización<br><time id="last-sync" datetime="{{ stats.last_sync }}">{{ stats.last_sync }}</time></p>
+      </section>
       <p class="sidebar-note">Copia local de tu Gmail.<br>Solo lectura.</p>
     </nav>
 
     <main class="mail">
-      <ul id="list" class="maillist">
-        {% for m in messages %}
-        <li class="row" data-folder="{{ m.folder }}" data-text="{{ (m.from ~ ' ' ~ m.subject ~ ' ' ~ (m.text or '')[:300])|e }}">
-          <a href="/{{ m.href }}">
-            <span class="col-from">{{ m.from.split('<')[0].strip() or m.from }}</span>
-            <span class="col-subj"><strong>{{ m.subject }}</strong><span class="snippet"> — {{ (m.text or '')[:90] }}</span></span>
-            {% if m.attachments %}<span class="clip" title="Tiene adjuntos">&#128206;</span>{% endif %}
-            <span class="col-date">{{ m.date[:10] if m.date else '' }}</span>
-          </a>
-        </li>
-        {% else %}
-        <li class="empty">No hay correos todavía. Usa el botón Sync arriba.</li>
-        {% endfor %}
-      </ul>
+      <div class="pagebar">
+        <span id="page-info">Cargando correos…</span>
+        <div>
+          <button type="button" id="page-prev" aria-label="Página anterior">‹</button>
+          <button type="button" id="page-next" aria-label="Página siguiente">›</button>
+        </div>
+      </div>
+      <ul id="list" class="maillist"></ul>
+      <div class="pagebar pagebar-bottom">
+        <span>250 correos por página</span>
+        <div>
+          <button type="button" id="page-prev-bottom" aria-label="Página anterior">‹</button>
+          <button type="button" id="page-next-bottom" aria-label="Página siguiente">›</button>
+        </div>
+      </div>
     </main>
 
     <aside class="guardian hidden" id="guardian">
@@ -69,7 +80,7 @@
       </form>
     </aside>
   </div>
-  <script src="/app.js?v=2"></script>
+  <script src="/app.js?v=4"></script>
 </body>
 </html>
 

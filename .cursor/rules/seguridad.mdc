@@ -41,3 +41,9 @@ NUNCA agregues, commitees ni pushees ninguno de estos:
 Interpreta que se refiere SOLO al código fuente (`src/`, `templates/`,
 `scripts/`, archivos de config no sensibles). Nunca a datos ni secretos.
 Ante la duda, pregunta antes de subir.
+
+## Documentación
+
+- `docs/AI_SECURITY.md` — reglas completas para agentes (checklist + hard rules)
+- `docs/SECURITY.md` — modelo de amenazas y setup
+- `AGENTS.md` — resumen en la raíz

@@ -9,6 +9,16 @@
 
 ---
 
+## 📚 Docs
+
+| Doc | |
+|-----|--|
+| [docs/VISION.md](docs/VISION.md) | Idea del proyecto |
+| [docs/UI.md](docs/UI.md) | Stats, carpetas, 250/página |
+| [docs/SECURITY.md](docs/SECURITY.md) | Secretos y protecciones |
+
+---
+
 ## 💡 Idea / The idea
 
 | English | Español |
@@ -130,6 +140,12 @@ Protections in this repo:
 3. Git **pre-commit hook** that blocks secrets
 4. Prod env folder **outside** OneDrive / the repo
 
+**Full docs / Documentación completa:**
+
+- [`docs/SECURITY.md`](docs/SECURITY.md) — humans / mantenedores
+- [`docs/AI_SECURITY.md`](docs/AI_SECURITY.md) — **obligatorio para otras AIs**
+- [`docs/README.md`](docs/README.md) — índice
+
 **Tip:** If an App Password ever lived inside OneDrive, revoke it and create a new one.  
 **Tip:** Si un App Password estuvo en OneDrive, revócalo y crea uno nuevo.
 
@@ -140,6 +156,10 @@ Protections in this repo:
 ```
 GhostTown-/
 ├── GhostTown.bat              # Double-click launcher (Windows)
+├── AGENTS.md                  # Short rules for AI agents
+├── docs/
+│   ├── SECURITY.md            # Security model (humans)
+│   └── AI_SECURITY.md         # Hard rules for other AIs
 ├── scripts/
 │   ├── Start-GhostTown.ps1    # GUI: ask passwords → verify → open UI
 │   └── setup.ps1

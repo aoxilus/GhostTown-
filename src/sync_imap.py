@@ -55,12 +55,24 @@ def sync(folders: list[str] | None = None, limit: int | None = None) -> dict:
     (DATA / "attachments").mkdir(exist_ok=True)
     index: dict = _load_json(INDEX, {"messages": {}})
     state: dict = _load_json(STATE, {"uids": {}})
-    folders = folders or ["INBOX", "[Gmail]/All Mail"]
     fetched = 0
     errors: list[str] = []
 
     with MailBox(s.imap_host).login(s.imap_user, s.imap_password) as mb:
-        available = {f.name for f in mb.folder.list()}
+        available_list = [f.name for f in mb.folder.list()]
+        available = set(available_list)
+        folder_totals = state.setdefault("folder_totals", {})
+        for name in available_list:
+            try:
+                folder_totals[name] = mb.folder.status(name, ["MESSAGES"])["MESSAGES"]
+            except Exception:
+                continue
+
+        if not folders:
+            custom = [name for name in available_list if not name.startswith("[Gmail]/")]
+            preferred = ["[Gmail]/All Mail", "INBOX", "[Gmail]/Sent Mail"]
+            folders = list(dict.fromkeys([name for name in preferred + custom if name in available]))
+
         for folder in folders:
             if folder not in available:
                 errors.append(f"skip missing folder: {folder}")

@@ -8,6 +8,9 @@ const guardian = document.getElementById("guardian");
 let history = [];
 let lastActions = [];
 let activeFolder = "";
+let allMessages = [];
+let currentPage = 1;
+const PAGE_SIZE = 250;
 
 function bubble(role, text) {
   const d = document.createElement("div");
@@ -17,13 +20,74 @@ function bubble(role, text) {
   log.scrollTop = log.scrollHeight;
 }
 
-function applyFilters() {
+function filteredMessages() {
   const v = (q?.value || "").toLowerCase();
-  list.querySelectorAll(".row").forEach((li) => {
-    const okFolder = !activeFolder || li.dataset.folder === activeFolder;
-    const okText = !v || (li.dataset.text || "").toLowerCase().includes(v);
-    li.style.display = okFolder && okText ? "" : "none";
+  const hasAllMail = allMessages.some((m) => m.folder === "[Gmail]/All Mail");
+  return allMessages.filter((m) => {
+    const okFolder = activeFolder
+      ? m.folder === activeFolder
+      : !hasAllMail || m.folder === "[Gmail]/All Mail";
+    const haystack = `${m.from} ${m.subject} ${m.snippet}`.toLowerCase();
+    return okFolder && (!v || haystack.includes(v));
   });
+}
+
+function addText(parent, tag, className, text) {
+  const el = document.createElement(tag);
+  el.className = className;
+  el.textContent = text;
+  parent.appendChild(el);
+  return el;
+}
+
+function renderPage() {
+  const rows = filteredMessages();
+  const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  currentPage = Math.min(Math.max(1, currentPage), pageCount);
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageRows = rows.slice(start, start + PAGE_SIZE);
+  list.replaceChildren();
+
+  if (!pageRows.length) {
+    addText(list, "li", "empty", activeFolder
+      ? "Esta carpeta todavía no se ha descargado a la PC."
+      : "No se encontraron correos.");
+  }
+
+  pageRows.forEach((m) => {
+    const li = document.createElement("li");
+    li.className = "row";
+    const link = document.createElement("a");
+    link.href = `/${m.href}`;
+    const sender = (m.from.split("<")[0].trim() || m.from);
+    addText(link, "span", "col-from", sender);
+    const subject = document.createElement("span");
+    subject.className = "col-subj";
+    addText(subject, "strong", "", m.subject);
+    addText(subject, "span", "snippet", ` — ${m.snippet}`);
+    link.appendChild(subject);
+    if (m.has_attachments) addText(link, "span", "clip", "📎");
+    addText(link, "span", "col-date", m.date);
+    li.appendChild(link);
+    list.appendChild(li);
+  });
+
+  const first = rows.length ? start + 1 : 0;
+  const last = Math.min(start + PAGE_SIZE, rows.length);
+  document.getElementById("page-info").textContent =
+    `${first.toLocaleString()}–${last.toLocaleString()} de ${rows.length.toLocaleString()}`;
+  ["page-prev", "page-prev-bottom"].forEach((id) => {
+    document.getElementById(id).disabled = currentPage <= 1;
+  });
+  ["page-next", "page-next-bottom"].forEach((id) => {
+    document.getElementById(id).disabled = currentPage >= pageCount;
+  });
+}
+
+function changePage(delta) {
+  currentPage += delta;
+  renderPage();
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 // sidebar: filtro por carpeta
@@ -32,11 +96,36 @@ document.querySelectorAll(".nav-item").forEach((item) => {
     document.querySelectorAll(".nav-item").forEach((i) => i.classList.remove("active"));
     item.classList.add("active");
     activeFolder = item.dataset.folder || "";
-    applyFilters();
+    currentPage = 1;
+    renderPage();
   });
 });
 
-if (q && list) q.addEventListener("input", applyFilters);
+if (q && list) q.addEventListener("input", () => {
+  currentPage = 1;
+  renderPage();
+});
+
+["page-prev", "page-prev-bottom"].forEach((id) => {
+  document.getElementById(id).onclick = () => changePage(-1);
+});
+["page-next", "page-next-bottom"].forEach((id) => {
+  document.getElementById(id).onclick = () => changePage(1);
+});
+
+fetch("/messages.json")
+  .then((r) => r.json())
+  .then((messages) => {
+    allMessages = messages;
+    renderPage();
+  })
+  .catch(() => addText(list, "li", "empty", "No se pudo cargar el índice local."));
+
+const lastSync = document.getElementById("last-sync");
+if (lastSync && lastSync.dateTime && lastSync.dateTime !== "Nunca") {
+  const date = new Date(lastSync.dateTime);
+  if (!Number.isNaN(date.getTime())) lastSync.textContent = date.toLocaleString();
+}
 
 // panel Guardián
 const btnGuardian = document.getElementById("btn-guardian");

@@ -105,10 +105,18 @@ def home():
     return FileResponse(index)
 
 
+@app.get("/messages.json")
+def messages_index():
+    path = GHOST / "messages.json"
+    if path.exists():
+        return FileResponse(path, media_type="application/json")
+    raise HTTPException(404)
+
+
 def mount_static():
     if GHOST.exists():
         app.mount("/static-ghost", StaticFiles(directory=str(GHOST)), name="ghost")
-        att = GHOST / "attachments"
+        att = DATA / "attachments"
         if att.exists():
             app.mount("/attachments", StaticFiles(directory=str(att)), name="att")
         threads = GHOST / "threads"
