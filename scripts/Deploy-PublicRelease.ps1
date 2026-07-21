@@ -93,7 +93,7 @@ try {
 - No credentials, email, attachments, or generated archives are included.
 - No se incluyen credenciales, correos, adjuntos ni archivos generados.
 
-Hecho con 🥑 por **aoxilus**.
+**Aoxilus** 🥑
 "@
     $notesPath = Join-Path $tempRoot "RELEASE_NOTES.md"
     Set-Content -Path $notesPath -Value $notes -Encoding UTF8

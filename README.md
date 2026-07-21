@@ -211,4 +211,4 @@ Uso personal / educativo. Tú eres responsable de tus credenciales y de lo que b
 
 ---
 
-<p align="center">Hecho con 🥑 por <a href="https://github.com/aoxilus"><b>aoxilus</b></a></p>
+<p align="center"><a href="https://github.com/aoxilus"><b>Aoxilus</b></a> 🥑</p>
