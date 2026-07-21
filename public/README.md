@@ -4,6 +4,12 @@
 
 **ES:** Descarga tu Gmail a la PC, léelo en una interfaz familiar y libera espacio en tu buzón o Google Drive sin perder tu archivo.
 
+## 🆚 Why not Google Takeout? / ¿Por qué no Google Takeout?
+
+**EN:** Google Takeout exports your mail as a giant `.mbox` file that's hard to use — you can't just open it and read your inbox. You need special software to import it, and there's no way to browse or search it like Gmail. **GhostTown** gives you a ready-to-read archive that looks and feels like Gmail, right in your browser.
+
+**ES:** Google Takeout exporta tu correo como un enorme archivo `.mbox` difícil de usar — no puedes solo abrirlo y leer tu bandeja. Necesitas software especial para importarlo, y no hay forma de navegarlo ni buscarlo como en Gmail. **GhostTown** te da un archivo listo para leer que se ve y se siente como Gmail, directo en tu navegador.
+
 ## 📦 Download / Descargar
 
 Open **Releases**, choose the latest version, and download `GhostTown-<version>.zip`.

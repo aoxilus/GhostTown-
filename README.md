@@ -50,6 +50,13 @@ Gmail (IMAP)  ──sync──►  Your PC (data/)  ──build──►  GhostT
                                                       looks like Gmail, read-only
 ```
 
+### 🆚 Why not Google Takeout? / ¿Por qué no Google Takeout?
+
+| English | Español |
+|--------|---------|
+| Google Takeout exports your mail as a giant `.mbox` file. It's hard to use: you can't just open it and read your inbox — you need special software to import it, and there's no way to browse or search it like Gmail. | Google Takeout exporta tu correo como un enorme archivo `.mbox`. Es difícil de usar: no puedes solo abrirlo y leer tu bandeja — necesitas software especial para importarlo, y no hay forma de navegarlo ni buscarlo como en Gmail. |
+| **GhostTown** gives you a ready-to-read archive that **looks and feels like Gmail**, right in your browser — no imports, no extra apps, just click and read. | **GhostTown** te da un archivo listo para leer que **se ve y se siente como Gmail**, directo en tu navegador — sin importar nada, sin apps extra, solo abres y lees. |
+
 ---
 
 ## ✨ Features / Características
