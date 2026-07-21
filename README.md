@@ -34,6 +34,15 @@ Antes de empezar necesitas 3 cosas. **La app te guía paso a paso para la #3.**
 | [docs/VISION.md](docs/VISION.md) | Idea del proyecto |
 | [docs/UI.md](docs/UI.md) | Stats, carpetas, 250/página |
 | [docs/SECURITY.md](docs/SECURITY.md) | Secretos y protecciones |
+| [internal/RELEASE_ARCHITECTURE.md](internal/RELEASE_ARCHITECTURE.md) | Privado vs público + publish (solo este repo) |
+
+### Publish (private → public open source)
+
+```powershell
+.\tools\Publish-GhostTown.ps1 -Version v0.2.0
+```
+
+Pushes the private backup, then publishes an allowlisted open-source tree + release ZIP to `aoxilus/GhostTown-` (no AI agent docs).
 
 ---
 
