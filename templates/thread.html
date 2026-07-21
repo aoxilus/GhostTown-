@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ m.subject }} — GmailGhostTown</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="thread-page">
+  <p class="back"><a href="/">← volver al pueblo</a></p>
+  <article class="thread">
+    <p class="brand">GmailGhostTown</p>
+    <h1>{{ m.subject }}</h1>
+    <p class="meta"><strong>From:</strong> {{ m.from }} · <strong>Date:</strong> {{ m.date or '—' }}</p>
+    {% if m.attachments %}
+    <ul class="atts">
+      {% for a in m.attachments %}
+      <li><a href="/attachments/{{ a.path }}">{{ a.filename }}</a></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    <div class="body">{{ body_html | safe }}</div>
+  </article>
+</body>
+</html>

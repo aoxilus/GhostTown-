@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GmailGhostTown</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="town">
+    <header class="hero">
+      <p class="brand">GmailGhostTown</p>
+      <h1>El correo ya no vive aquí</h1>
+      <p class="sub">{{ total }} ecos en el polvo. Habla con el guardián para limpiar el mugrero.</p>
+      <div class="toolbar">
+        <input id="q" type="search" placeholder="Buscar en el pueblo…" />
+        <button type="button" id="btn-sync">Sync IMAP</button>
+      </div>
+    </header>
+
+    <main class="street">
+      <ul id="list" class="list">
+        {% for m in messages %}
+        <li class="house" data-text="{{ (m.from ~ ' ' ~ m.subject ~ ' ' ~ (m.text or ''))|e }}">
+          <a href="/{{ m.href }}">
+            <span class="date">{{ m.date[:10] if m.date else '—' }}</span>
+            <span class="from">{{ m.from }}</span>
+            <span class="subj">{{ m.subject }}</span>
+          </a>
+        </li>
+        {% else %}
+        <li class="empty">Pueblo vacío. Corre <code>python -m src.cli sync</code></li>
+        {% endfor %}
+      </ul>
+    </main>
+
+    <aside class="guardian" id="guardian">
+      <h2>Guardián</h2>
+      <div id="log" class="log"></div>
+      <div id="pending" class="pending hidden"></div>
+      <form id="chat-form">
+        <input id="chat-in" autocomplete="off" placeholder="ej. borra newsletters y ads…" />
+        <button type="submit">Enviar</button>
+      </form>
+    </aside>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>

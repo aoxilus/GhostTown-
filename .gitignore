@@ -1,0 +1,9 @@
+.env
+data/
+ghosttown/
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.DS_Store
