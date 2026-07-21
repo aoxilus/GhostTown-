@@ -9,6 +9,22 @@
 
 ---
 
+## ✅ Requisitos / Requirements
+
+Antes de empezar necesitas 3 cosas. **La app te guía paso a paso para la #3.**
+
+| # | Necesitas | Nota |
+|---|-----------|------|
+| 1 | **Python 3.11+** | [python.org](https://www.python.org/downloads/) (marca *Add to PATH*) |
+| 2 | **Cuenta personal de Gmail** | Las de escuela/trabajo suelen bloquear el paso 3 |
+| 3 | **App Password de Google** (16 letras) | **No es tu contraseña normal.** La app abre Google y te guía para crearla |
+
+> El **App Password es obligatorio**: Google no permite leer Gmail por IMAP con la contraseña normal. Se crea una sola vez y la ventana de GhostTown te lleva de la mano.
+>
+> The **App Password is required**: Google does not allow IMAP with your normal password. You create it once and the GhostTown wizard walks you through it.
+
+---
+
 ## 📚 Docs
 
 | Doc | |

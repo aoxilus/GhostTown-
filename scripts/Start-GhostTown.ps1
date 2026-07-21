@@ -102,23 +102,31 @@ $help.Size = New-Object System.Drawing.Size(430, 20)
 $help.LinkColor = [System.Drawing.Color]::FromArgb(196, 180, 154)
 $help.Add_LinkClicked({
     $steps = @"
-COMO CREAR EL APP PASSWORD (una sola vez)
+COMO CONSEGUIR TU LLAVE DE GOOGLE (una sola vez)
 
-1. Entra a tu Cuenta de Google (la personal, no la escolar).
-2. Activa la Verificacion en 2 pasos:
-   myaccount.google.com/security  ->  Verificacion en 2 pasos  ->  Activar.
-3. Activa IMAP en Gmail:
-   Gmail  ->  Configuracion  ->  Reenvio y correo POP/IMAP  ->  Habilitar IMAP.
-4. Crea el App Password:
-   myaccount.google.com/apppasswords
-   - Nombre de la app: escribe  GhostTown
-   - Clic en Crear.
-5. Google te da 16 letras (ejemplo: abcd efgh ijkl mnop).
-   Copialas aqui en 'App Password' (los espacios no importan).
+Piensa en esto como una llave de repuesto solo para GhostTown.
+No usamos tu contrasena normal.
 
-Se abrira la pagina de App Passwords ahora.
+PASO 1 - Prende la seguridad de 2 pasos
+   Se abrira una pagina de Google. Busca "Verificacion en 2 pasos"
+   y prendela con tu telefono. (Si ya la tienes, sigue al paso 2.)
+
+PASO 2 - Crea la llave
+   Se abrira otra pagina de Google.
+   - Donde dice "Nombre de la app", escribe: GhostTown
+   - Haz clic en Crear.
+   - Google te muestra 16 letras. Copialas.
+
+PASO 3 - Pega las 16 letras aqui en 'App Password'.
+   (Los espacios no importan.)
+
+Nota: usa tu Gmail PERSONAL. Las cuentas de escuela o trabajo
+casi siempre bloquean esto.
+
+Voy a abrir las dos paginas de Google ahora.
 "@
-    Show-Info $steps "Guia App Password"
+    Show-Info $steps "Como conectar tu Gmail"
+    Start-Process "https://myaccount.google.com/signinoptions/twosv"
     Start-Process "https://myaccount.google.com/apppasswords"
 })
 $form.Controls.Add($help)

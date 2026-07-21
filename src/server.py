@@ -119,6 +119,11 @@ def api_setup(body: SetupIn):
     return verify()
 
 
+@app.get("/setup")
+def setup_page():
+    return FileResponse(TEMPLATES / "setup.html")
+
+
 @app.get("/")
 def home():
     if not _configured():
