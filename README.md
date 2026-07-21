@@ -1,89 +1,172 @@
-# GmailGhostTown
+# 👻 GhostTown
 
-Convierte tu Gmail en un pueblo fantasma: baja todo tu correo a tu PC como un sitio HTML navegable, y despues un asistente de IA (`gpt-4.1-mini`) te ayuda a limpiar el mugrero (newsletters, anuncios, ventas) mandandolo a la papelera. Como ya tienes la copia local, puedes vaciar Gmail sin miedo.
+**EN:** Local Gmail backup that looks like Gmail — but lives on your PC. Free up Gmail / Drive space without losing your mail.  
+**ES:** Copia local de Gmail con layout tipo Gmail — pero vive en tu PC. Libera espacio en Gmail / Drive sin perder tu correo.
 
----
-
-## Inicio rapido (doble clic)
-
-1. Instala **Python 3.11 o mas** desde [python.org](https://www.python.org/downloads/) (marca "Add Python to PATH").
-2. Doble clic en **`GhostTown.bat`**.
-   - La primera vez instala todo solo (1-2 min).
-   - Se abre una ventana que pide tus datos.
-3. Llena la ventana, clic en **Verificar y abrir GhostTown**.
-
-Eso es todo. Si el login es correcto, baja tu correo y abre `http://127.0.0.1:8765`.
+[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-local-lightgrey.svg)](#)
+[![Platform](https://img.shields.io/badge/Windows-PowerShell-0078D4.svg)](#)
 
 ---
 
-## Paso a paso: crear el App Password de Google
+## 💡 Idea / The idea
 
-Google no deja usar tu contrasena normal para esto. Necesitas un **App Password** (16 letras). Solo se hace una vez.
+| English | Español |
+|--------|---------|
+| Your Gmail fills up with years of spam, newsletters, receipts, and real conversations. Deleting blindly is scary. | Tu Gmail se llena de años de spam, newsletters, recibos y conversaciones reales. Borrar a ciegas da miedo. |
+| **GhostTown** downloads your mail to your computer as a browsable archive (HTML). Then you can clean Gmail — or empty it — because the copy is already safe on disk. | **GhostTown** baja tu correo a la PC como un archivo navegable (HTML). Luego puedes limpiar Gmail — o vaciarlo — porque la copia ya está segura en disco. |
+| Goal: **backup Gmail → free Drive / mailbox space → keep reading everything offline.** | Meta: **respaldar Gmail → liberar espacio en Drive / bandeja → seguir leyendo todo offline.** |
 
-1. **Usa tu cuenta personal de Gmail** (no una escolar/empresa; esas suelen tenerlo bloqueado).
-2. **Activa la Verificacion en 2 pasos:**
-   - Entra a [myaccount.google.com/security](https://myaccount.google.com/security)
-   - Busca **Verificacion en 2 pasos** y actavala (te pedira tu telefono).
-   - Sin este paso, Google esconde los App Passwords.
-3. **Activa IMAP en Gmail:**
-   - Abre Gmail -> engranaje **Configuracion** -> **Ver toda la configuracion**
-   - Pestana **Reenvio y correo POP/IMAP** -> **Habilitar IMAP** -> Guardar.
-4. **Crea el App Password:**
-   - Entra a [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)
-   - En **Nombre de la app** escribe: `GhostTown`
-   - Clic en **Crear**.
-5. Google muestra **16 letras** (ej. `abcd efgh ijkl mnop`). Copialas.
-   - En la ventana de GhostTown pegalas en **App Password** (los espacios no importan).
-
-> Si en el paso 4 dice "The setting you are looking for is not available":
-> - Te falta activar la Verificacion en 2 pasos (paso 2), **o**
-> - Estas en una cuenta escolar/empresa que lo bloquea. Cambia a tu Gmail personal.
+```
+Gmail (IMAP)  ──sync──►  Your PC (data/)  ──build──►  GhostTown UI (localhost)
+                                                      looks like Gmail, read-only
+```
 
 ---
 
-## OpenAI API Key (opcional)
+## ✨ Features / Características
 
-Solo se necesita para el chat que limpia el correo con IA. Para **solo respaldar** (GhostTown) puedes dejarla vacia.
+| 🇬🇧 | 🇪🇸 |
+|----|----|
+| 📥 IMAP sync (Gmail App Password) | 📥 Sync por IMAP (App Password de Gmail) |
+| 🖥️ Gmail-like inbox on `http://127.0.0.1:8765` | 🖥️ Bandeja tipo Gmail en `http://127.0.0.1:8765` |
+| 📎 Attachments saved on disk | 📎 Adjuntos guardados en disco |
+| 🔍 Search + folder filters | 🔍 Búsqueda + filtros por carpeta |
+| 🧙 Setup wizard in the browser if credentials are missing | 🧙 Asistente web si faltan credenciales |
+| 🪟 Windows GUI launcher (`GhostTown.bat`) | 🪟 Lanzador GUI en Windows (`GhostTown.bat`) |
+| 🤖 Optional AI cleanup (`gpt-4.1-mini`) — confirm before trash | 🤖 Limpieza IA opcional (`gpt-4.1-mini`) — confirmas antes de borrar |
+| 🔒 Secrets outside the repo (`%USERPROFILE%\.gmailbot\.env`) | 🔒 Secretos fuera del repo (`%USERPROFILE%\.gmailbot\.env`) |
 
-- Consiguela en [platform.openai.com/api-keys](https://platform.openai.com/api-keys).
-- El modelo por defecto es `gpt-4.1-mini` (barato).
-
----
-
-## Como se usa GhostTown
-
-- **Buscar:** barra arriba filtra tus correos.
-- **Abrir:** clic en un correo para ver la conversacion y adjuntos.
-- **Guardian (chat a la derecha):** escribe cosas como
-  - "borra todos los newsletters y anuncios"
-  - "que correos comerciales hay de 2023"
-- La IA propone una lista para borrar. **Nada se borra sin que confirmes.** Revisas y clic en **Confirmar Trash** -> se mueve a la papelera de Gmail.
+> **Read-only archive first.** The AI never deletes without your confirmation.  
+> **Primero el archivo de solo lectura.** La IA no borra nada sin tu confirmación.
 
 ---
 
-## Para usuarios avanzados (linea de comandos)
+## 🚀 Quick start / Inicio rápido
+
+### Windows (easiest / lo más fácil)
+
+1. Install **Python 3.11+** from [python.org](https://www.python.org/downloads/) (check *Add to PATH*).
+2. Double-click **`GhostTown.bat`**.
+3. Enter your Gmail + App Password in the window (or in the browser wizard).
+4. Browse your mail at **http://127.0.0.1:8765**
+
+### CLI
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-copy .env.example .env   # edita con tus datos
-python -m src.cli verify         # prueba el login IMAP
-python -m src.cli sync --limit 50  # baja 50 para probar
-python -m src.cli serve          # abre la UI + chat
+
+# Credentials: copy .env.example → %USERPROFILE%\.gmailbot\.env  (recommended)
+# or → .env in this folder (gitignored)
+
+python -m src.cli verify
+python -m src.cli sync --limit 50   # test with 50 messages
+python -m src.cli serve             # open UI
 ```
 
-| Comando | Que hace |
-|---------|----------|
-| `python -m src.cli verify` | Prueba el login IMAP y sale |
-| `python -m src.cli sync` | Baja el correo (usa `--limit N` para probar) |
-| `python -m src.cli build` | Regenera el HTML |
-| `python -m src.cli serve` | Abre GhostTown + chat IA |
+| Command | What it does / Qué hace |
+|---------|-------------------------|
+| `python -m src.cli verify` | Test IMAP login / Probar login IMAP |
+| `python -m src.cli sync` | Download mail / Bajar correo |
+| `python -m src.cli build` | Rebuild HTML / Regenerar HTML |
+| `python -m src.cli serve` | Start local UI + API / Arrancar UI local |
 
-Quita `--limit` para bajar **todo** el correo.
+Drop `--limit` to sync **everything**.  
+Quita `--limit` para bajar **todo**.
 
 ---
 
-## Privacidad
+## 🔑 Gmail App Password (required / obligatorio)
 
-Todo corre en tu PC. Tu correo se guarda en `data/` y `ghosttown/` (ignorados por git). Tus claves viven solo en `.env` local. Lo unico que sale a internet es: IMAP hacia Google y, si usas el chat, los asuntos/remitentes hacia OpenAI para clasificar.
+Google does **not** allow your normal password for IMAP. You need a 16-character **App Password**.
+
+Google **no** deja usar tu contraseña normal en IMAP. Necesitas un **App Password** de 16 letras.
+
+1. Use a **personal** Gmail (school/work accounts often block this).  
+   Usa Gmail **personal** (las escolares/empresa suelen bloquearlo).
+2. Turn on [2-Step Verification](https://myaccount.google.com/security).  
+   Activa la [Verificación en 2 pasos](https://myaccount.google.com/security).
+3. In Gmail → Settings → Forwarding and POP/IMAP → **Enable IMAP**.  
+   Gmail → Configuración → Reenvío y POP/IMAP → **Habilitar IMAP**.
+4. Create one at [App Passwords](https://myaccount.google.com/apppasswords) — name it `GhostTown`.  
+   Créalo en [App Passwords](https://myaccount.google.com/apppasswords) — nombre: `GhostTown`.
+5. Paste the 16 letters into the GUI / wizard / `.env` as `IMAP_PASSWORD` (spaces OK).  
+   Pega las 16 letras en el GUI / asistente / `.env` como `IMAP_PASSWORD` (espacios OK).
+
+> If you see *"The setting you are looking for is not available"* → 2FA is off, or you're on a managed school/work account.  
+> Si dice *"The setting you are looking for is not available"* → falta 2FA, o estás en una cuenta escolar/empresa.
+
+---
+
+## 🤖 Optional AI cleanup / Limpieza IA (opcional)
+
+Set `OPENAI_API_KEY` in your env file. Model default: **`gpt-4.1-mini`** (cheap).
+
+In the UI, open **Guardián** and ask things like:
+- *"borra newsletters y anuncios"*
+- *"what commercial mail do I have from 2023?"*
+
+The AI proposes a trash batch. **You confirm.** Mail moves to Gmail Trash via IMAP.  
+La IA propone un lote. **Tú confirmas.** Se mueve a la papelera de Gmail por IMAP.
+
+Without an API key, GhostTown still works as a full local backup.  
+Sin API key, GhostTown sigue funcionando como backup local completo.
+
+---
+
+## 🔒 Privacy & security / Privacidad y seguridad
+
+| ✅ Safe / Seguro | ❌ Never on GitHub / Nunca en GitHub |
+|------------------|-------------------------------------|
+| Code, templates, scripts | `.env`, passwords, API keys |
+| `.env.example` (placeholders only) | `data/`, `ghosttown/` (your real mail) |
+| Secrets in `%USERPROFILE%\.gmailbot\.env` | Attachments (`.pdf`, `.eml`, …) |
+
+Protections in this repo:
+1. Strong `.gitignore`
+2. Cursor / agent rules (`AGENTS.md`, `.cursor/rules/seguridad.mdc`)
+3. Git **pre-commit hook** that blocks secrets
+4. Prod env folder **outside** OneDrive / the repo
+
+**Tip:** If an App Password ever lived inside OneDrive, revoke it and create a new one.  
+**Tip:** Si un App Password estuvo en OneDrive, revócalo y crea uno nuevo.
+
+---
+
+## 📁 Project layout / Estructura
+
+```
+GhostTown-/
+├── GhostTown.bat              # Double-click launcher (Windows)
+├── scripts/
+│   ├── Start-GhostTown.ps1    # GUI: ask passwords → verify → open UI
+│   └── setup.ps1
+├── src/
+│   ├── sync_imap.py           # IMAP download
+│   ├── export_html.py         # Build Gmail-like HTML
+│   ├── server.py              # Local web UI + setup wizard + AI API
+│   ├── ai_clean.py            # Optional cleanup chat
+│   └── cli.py
+├── templates/                 # UI (index, thread, setup, CSS/JS)
+├── .env.example               # Placeholders only
+├── data/                      # Local mail cache (gitignored)
+└── ghosttown/                 # Generated HTML site (gitignored)
+```
+
+---
+
+## 🗺️ Roadmap / Próximos pasos
+
+- [ ] Full mailbox sync UX (progress bar for large inboxes)
+- [ ] Better Spanish/English UI toggle
+- [ ] Export selected threads to Markdown
+- [ ] Safer bulk cleanup presets (newsletters / promos)
+
+---
+
+## 📜 License / Licencia
+
+Personal / educational use. You are responsible for your own Gmail credentials and what you delete.  
+Uso personal / educativo. Tú eres responsable de tus credenciales y de lo que borres.
