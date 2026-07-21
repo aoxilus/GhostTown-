@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Configurar GhostTown</title>
+  <link rel="stylesheet" href="/styles.css?v=2" />
+</head>
+<body>
+  <div class="setup-wrap">
+    <div class="setup-card">
+      <h1>Bienvenido a GhostTown</h1>
+      <p class="sub">Tu copia local de Gmail. Completa estos datos una sola vez.</p>
+
+      <label for="s-user">Tu Gmail</label>
+      <input id="s-user" type="email" placeholder="tucorreo@gmail.com" />
+
+      <label for="s-pass">App Password de Google (16 letras)</label>
+      <input id="s-pass" type="password" placeholder="xxxx xxxx xxxx xxxx" />
+      <p class="hint">No es tu contrasena normal. Es una clave especial que Google genera.</p>
+
+      <details>
+        <summary>Como consigo el App Password (pasos)</summary>
+        <ol>
+          <li>Usa tu cuenta <strong>personal</strong> de Gmail (las de escuela/trabajo suelen bloquearlo).</li>
+          <li>Activa la <a href="https://myaccount.google.com/security" target="_blank">Verificacion en 2 pasos</a> (sin esto Google esconde la opcion).</li>
+          <li>En Gmail: Configuracion &rarr; Reenvio y correo POP/IMAP &rarr; <strong>Habilitar IMAP</strong>.</li>
+          <li>Entra a <a href="https://myaccount.google.com/apppasswords" target="_blank">App Passwords</a>, escribe <strong>GhostTown</strong> como nombre y pulsa Crear.</li>
+          <li>Copia las 16 letras y pegalas arriba (los espacios no importan).</li>
+        </ol>
+      </details>
+
+      <label for="s-key">OpenAI API Key (opcional)</label>
+      <input id="s-key" type="password" placeholder="sk-... (solo si quieres limpiar con IA)" />
+      <p class="hint">Sin esto GhostTown funciona igual como copia de tus correos.</p>
+
+      <button type="button" id="s-go">Verificar y empezar</button>
+      <p class="setup-status" id="s-status"></p>
+    </div>
+  </div>
+
+  <script>
+    const st = document.getElementById("s-status");
+    const btn = document.getElementById("s-go");
+    btn.onclick = async () => {
+      const user = document.getElementById("s-user").value.trim();
+      const pass = document.getElementById("s-pass").value.replace(/\s/g, "");
+      const key = document.getElementById("s-key").value.trim();
+      if (!user || !pass) {
+        st.className = "setup-status err";
+        st.textContent = "Escribe tu Gmail y el App Password.";
+        return;
+      }
+      btn.disabled = true;
+      st.className = "setup-status";
+      st.textContent = "Verificando con Google…";
+      const r = await fetch("/api/setup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user, password: pass, openai_key: key }),
+      });
+      const d = await r.json();
+      if (!d.ok) {
+        st.className = "setup-status err";
+        st.textContent = d.error || "No se pudo verificar.";
+        btn.disabled = false;
+        return;
+      }
+      st.className = "setup-status ok";
+      st.textContent = "Login correcto. Bajando tus primeros correos (puede tardar un minuto)…";
+      try {
+        await fetch("/api/sync?limit=200", { method: "POST" });
+      } catch (e) {}
+      location.href = "/";
+    };
+  </script>
+</body>
+</html>
+

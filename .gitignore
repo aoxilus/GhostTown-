@@ -1,9 +1,57 @@
+# ==========================================================
+#  GmailGhostTown - .gitignore
+#  NUNCA subir a GitHub: credenciales, correos ni adjuntos.
+# ==========================================================
+
+# --- Secretos / credenciales ---
 .env
+.env.*
+!.env.example
+*.env
+secrets/
+prod/
+credentials.json
+credentials*.json
+client_secret*.json
+token.json
+token*.json
+*.key
+*.pem
+*.p12
+*.pfx
+service-account*.json
+oauth*.json
+
+# --- Datos de correos / contenido personal ---
 data/
 ghosttown/
+attachments/
+*.mbox
+*.eml
+*.msg
+
+# --- Adjuntos descargados (por si acaso salen del data/) ---
+*.pdf
+*.csv
+*.ics
+*.xlsx
+*.xls
+*.doc
+*.docx
+
+# --- Python ---
 __pycache__/
 *.pyc
+*.pyo
 .venv/
 venv/
+env/
 *.egg-info/
+.pytest_cache/
+
+# --- Sistema / editor ---
 .DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/

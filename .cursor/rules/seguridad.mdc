@@ -1,0 +1,43 @@
+---
+description: Reglas de seguridad OBLIGATORIAS - nunca subir credenciales ni correos a git/GitHub
+alwaysApply: true
+---
+
+# SEGURIDAD - LEER ANTES DE CUALQUIER COMANDO GIT
+
+Este repo (`GhostTown-`) maneja correos personales y credenciales de Gmail.
+Estas reglas son ESTRICTAS y no negociables.
+
+## PROHIBIDO subir a git / GitHub
+
+NUNCA agregues, commitees ni pushees ninguno de estos:
+
+- `.env`, `.env.*`, `*.env` (excepto `.env.example` con placeholders)
+- Cualquier archivo con contraseñas, tokens, API keys o app-passwords
+- `data/`, `ghosttown/`, `attachments/` (correos y adjuntos personales)
+- `*.eml`, `*.mbox`, `*.msg`, y adjuntos: `*.pdf`, `*.csv`, `*.ics`, `*.xlsx`, `*.doc*`
+- `credentials*.json`, `token*.json`, `client_secret*.json`, `*.key`, `*.pem`
+
+## Reglas de comandos
+
+1. NUNCA uses `git add .`, `git add -A` ni `git add --all`.
+   Agrega SOLO archivos específicos por nombre: `git add src/archivo.py`.
+2. Antes de cualquier `git commit`, corre `git status` y confirma que
+   ningún archivo de la lista prohibida está en staging.
+3. Antes de `git push`, verifica de nuevo con `git status` y `git diff --cached`.
+4. Si un secreto pudo haberse commiteado, DETENTE y avisa al usuario.
+   No hagas push. No intentes reescribir historia sin confirmación explícita.
+5. NUNCA imprimas el contenido real de `.env` ni credenciales en respuestas,
+   commits, logs o mensajes.
+
+## Dónde viven los secretos
+
+- Los secretos reales viven FUERA del repo en: `%USERPROFILE%\.gmailbot\.env`
+- En el repo solo puede existir `.env.example` con valores falsos.
+- `config.py` carga desde el folder de prod externo automáticamente.
+
+## Si el usuario pide "sube todo" o "haz push de todo"
+
+Interpreta que se refiere SOLO al código fuente (`src/`, `templates/`,
+`scripts/`, archivos de config no sensibles). Nunca a datos ni secretos.
+Ante la duda, pregunta antes de subir.

@@ -3,23 +3,38 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{{ m.subject }} — GmailGhostTown</title>
-  <link rel="stylesheet" href="/styles.css" />
+  <title>{{ m.subject }} — GhostTown</title>
+  <link rel="stylesheet" href="/styles.css?v=2" />
 </head>
 <body class="thread-page">
-  <p class="back"><a href="/">← volver al pueblo</a></p>
-  <article class="thread">
-    <p class="brand">GmailGhostTown</p>
+  <header class="topbar">
+    <div class="logo">
+      <span class="logo-mark">G</span>
+      <span class="logo-text">GhostTown</span>
+    </div>
+    <div class="searchwrap"><a class="backlink" href="/">&larr; Volver a la lista</a></div>
+    <div class="topbar-actions"></div>
+  </header>
+
+  <article class="reader">
     <h1>{{ m.subject }}</h1>
-    <p class="meta"><strong>From:</strong> {{ m.from }} · <strong>Date:</strong> {{ m.date or '—' }}</p>
+    <div class="msg-head">
+      <div class="avatar">{{ (m.from or '?')[0]|upper }}</div>
+      <div class="msg-meta">
+        <p class="msg-from">{{ m.from }}</p>
+        <p class="msg-to">para {{ m.to|join(', ') if m.to else 'mí' }}</p>
+      </div>
+      <p class="msg-date">{{ m.date or '' }}</p>
+    </div>
     {% if m.attachments %}
-    <ul class="atts">
+    <div class="atts">
       {% for a in m.attachments %}
-      <li><a href="/attachments/{{ a.path }}">{{ a.filename }}</a></li>
+      <a class="att-chip" href="/attachments/{{ a.path }}" download>{{ a.filename }}</a>
       {% endfor %}
-    </ul>
+    </div>
     {% endif %}
     <div class="body">{{ body_html | safe }}</div>
   </article>
 </body>
 </html>
+

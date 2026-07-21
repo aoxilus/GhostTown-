@@ -55,7 +55,7 @@ def build() -> dict:
     _wipe(att_out)
     src_att = DATA / "attachments"
     if src_att.exists():
-        shutil.copytree(src_att, att_out)
+        shutil.copytree(src_att, att_out, dirs_exist_ok=True)
 
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATES)),
@@ -81,6 +81,17 @@ def build() -> dict:
         )
         m["href"] = f"threads/{safe_id}.html"
 
+    folder_names = {"INBOX": "Recibidos", "[Gmail]/All Mail": "Todos los correos", "[Gmail]/Sent Mail": "Enviados"}
+    counts: dict[str, int] = {}
+    for m in msgs:
+        counts[m["folder"]] = counts.get(m["folder"], 0) + 1
+    folders = [
+        {"id": f, "name": folder_names.get(f, f), "count": c}
+        for f, c in sorted(counts.items(), key=lambda x: -x[1])
+    ]
+
     index_t = env.get_template("index.html")
-    (GHOST / "index.html").write_text(index_t.render(messages=msgs, total=len(msgs)), encoding="utf-8")
+    (GHOST / "index.html").write_text(
+        index_t.render(messages=msgs, total=len(msgs), folders=folders), encoding="utf-8"
+    )
     return {"pages": len(msgs)}

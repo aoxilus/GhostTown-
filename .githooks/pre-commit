@@ -1,0 +1,56 @@
+#!/bin/sh
+# =============================================================
+#  GmailGhostTown pre-commit hook
+#  Bloquea el commit si detecta credenciales o correos personales.
+#  Instalar: git config core.hooksPath .githooks
+# =============================================================
+
+RED='\033[0;31m'
+YEL='\033[1;33m'
+NC='\033[0m'
+
+fail() {
+  printf "${RED}[BLOQUEADO] %s${NC}\n" "$1" >&2
+  printf "${YEL}Commit abortado por seguridad. Nada se subio.${NC}\n" >&2
+  exit 1
+}
+
+# Archivos en staging (solo agregados/modificados)
+staged=$(git diff --cached --name-only --diff-filter=ACM)
+[ -z "$staged" ] && exit 0
+
+# --- 1) Rutas / extensiones prohibidas por nombre ---
+blocked=$(printf "%s\n" "$staged" | grep -Ei \
+  '(^|/)\.env($|\.)|(^|/)data/|(^|/)ghosttown/|(^|/)attachments/|(^|/)secrets/|(^|/)prod/|\.(eml|mbox|msg|pdf|csv|ics|xlsx|xls|docx?|key|pem|p12|pfx)$|credentials.*\.json|token.*\.json|client_secret.*\.json|service-account.*\.json|oauth.*\.json')
+
+# permitir .env.example explicitamente
+blocked=$(printf "%s\n" "$blocked" | grep -v '\.env\.example$')
+
+if [ -n "$blocked" ]; then
+  printf "${RED}Archivos sensibles en staging:${NC}\n" >&2
+  printf "%s\n" "$blocked" >&2
+  fail "Estos archivos NO pueden ir a git (credenciales/correos/adjuntos)."
+fi
+
+# --- 2) Escaneo de contenido: patrones de secretos ---
+for f in $staged; do
+  case "$f" in
+    *.env.example) continue ;;
+  esac
+  [ -f "$f" ] || continue
+  content=$(git show ":$f" 2>/dev/null)
+
+  # OpenAI / API keys
+  printf "%s" "$content" | grep -Eq 'sk-[A-Za-z0-9]{20,}' && \
+    fail "Posible API key (sk-...) en $f"
+
+  # Gmail app password (16 letras minusculas juntas asignadas a un password)
+  printf "%s" "$content" | grep -Eiq '(imap_password|password|passwd|pwd)[[:space:]]*[=:][[:space:]]*[A-Za-z0-9]{12,}' && \
+    fail "Posible password/credencial en $f"
+
+  # Bloques de clave privada
+  printf "%s" "$content" | grep -Eq 'BEGIN( RSA| OPENSSH| EC| DSA| PGP)? PRIVATE KEY' && \
+    fail "Clave privada detectada en $f"
+done
+
+exit 0

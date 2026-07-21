@@ -11,9 +11,9 @@ from pydantic import BaseModel
 
 from .ai_clean import chat as ai_chat
 from .ai_clean import trash_ids
-from .config import DATA, GHOST, INDEX, get_settings
+from .config import DATA, GHOST, INDEX, ROOT, TEMPLATES, get_settings
 from .export_html import build
-from .sync_imap import sync
+from .sync_imap import sync, verify
 
 app = FastAPI(title="GmailGhostTown")
 
@@ -25,6 +25,17 @@ class ChatIn(BaseModel):
 
 class ConfirmIn(BaseModel):
     ids: list[str]
+
+
+class SetupIn(BaseModel):
+    user: str
+    password: str
+    openai_key: str = ""
+
+
+def _configured() -> bool:
+    s = get_settings()
+    return bool(s.imap_user and s.imap_password and "@" in s.imap_user and s.imap_user != "tu@gmail.com")
 
 
 @app.on_event("startup")
@@ -68,14 +79,29 @@ def api_confirm(body: ConfirmIn):
     return result
 
 
+@app.post("/api/setup")
+def api_setup(body: SetupIn):
+    """Write .env from the web wizard, then test the IMAP login."""
+    s = get_settings()
+    lines = [
+        "IMAP_HOST=imap.gmail.com",
+        f"IMAP_USER={body.user.strip()}",
+        f"IMAP_PASSWORD={body.password.strip()}",
+        f"OPENAI_API_KEY={body.openai_key.strip() or s.openai_api_key}",
+        f"OPENAI_MODEL={s.openai_model}",
+        f"PORT={s.port}",
+    ]
+    (ROOT / ".env").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return verify()
+
+
 @app.get("/")
 def home():
+    if not _configured():
+        return FileResponse(TEMPLATES / "setup.html")
     index = GHOST / "index.html"
     if not index.exists():
-        return HTMLResponse(
-            "<h1>GmailGhostTown</h1><p>Empty. Run <code>python -m src.cli sync</code> then refresh.</p>",
-            status_code=200,
-        )
+        return FileResponse(TEMPLATES / "setup.html")
     return FileResponse(index)
 
 
@@ -93,18 +119,18 @@ def mount_static():
 mount_static()
 
 
-# serve css/js from ghost root
+# serve css/js from ghost root, falling back to templates (setup page before first build)
 @app.get("/styles.css")
 def css():
-    p = GHOST / "styles.css"
-    if p.exists():
-        return FileResponse(p)
+    for p in (GHOST / "styles.css", TEMPLATES / "styles.css"):
+        if p.exists():
+            return FileResponse(p)
     raise HTTPException(404)
 
 
 @app.get("/app.js")
 def js():
-    p = GHOST / "app.js"
-    if p.exists():
-        return FileResponse(p)
+    for p in (GHOST / "app.js", TEMPLATES / "app.js"):
+        if p.exists():
+            return FileResponse(p)
     raise HTTPException(404)

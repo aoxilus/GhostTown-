@@ -4,8 +4,10 @@ const form = document.getElementById("chat-form");
 const input = document.getElementById("chat-in");
 const q = document.getElementById("q");
 const list = document.getElementById("list");
+const guardian = document.getElementById("guardian");
 let history = [];
 let lastActions = [];
+let activeFolder = "";
 
 function bubble(role, text) {
   const d = document.createElement("div");
@@ -14,6 +16,33 @@ function bubble(role, text) {
   log.appendChild(d);
   log.scrollTop = log.scrollHeight;
 }
+
+function applyFilters() {
+  const v = (q?.value || "").toLowerCase();
+  list.querySelectorAll(".row").forEach((li) => {
+    const okFolder = !activeFolder || li.dataset.folder === activeFolder;
+    const okText = !v || (li.dataset.text || "").toLowerCase().includes(v);
+    li.style.display = okFolder && okText ? "" : "none";
+  });
+}
+
+// sidebar: filtro por carpeta
+document.querySelectorAll(".nav-item").forEach((item) => {
+  item.addEventListener("click", () => {
+    document.querySelectorAll(".nav-item").forEach((i) => i.classList.remove("active"));
+    item.classList.add("active");
+    activeFolder = item.dataset.folder || "";
+    applyFilters();
+  });
+});
+
+if (q && list) q.addEventListener("input", applyFilters);
+
+// panel Guardián
+const btnGuardian = document.getElementById("btn-guardian");
+const btnClose = document.getElementById("btn-close-guardian");
+if (btnGuardian) btnGuardian.onclick = () => guardian.classList.toggle("hidden");
+if (btnClose) btnClose.onclick = () => guardian.classList.add("hidden");
 
 function showPending(actions) {
   lastActions = actions || [];
@@ -24,14 +53,9 @@ function showPending(actions) {
   }
   pending.classList.remove("hidden");
   pending.innerHTML =
-    "<strong>Propuesta: " +
-    lastActions.length +
-    " a Trash</strong><ul>" +
-    lastActions
-      .slice(0, 30)
-      .map((a) => "<li><code>" + a.id + "</code> — " + (a.reason || "") + "</li>")
-      .join("") +
-    "</ul><button type='button' id='confirm-trash'>Confirmar Trash</button> " +
+    "<strong>Propuesta: mover " + lastActions.length + " a la papelera</strong><ul>" +
+    lastActions.slice(0, 30).map((a) => "<li>" + (a.reason || a.id) + "</li>").join("") +
+    "</ul><button type='button' id='confirm-trash'>Confirmar</button> " +
     "<button type='button' id='cancel-trash'>Cancelar</button>";
   document.getElementById("confirm-trash").onclick = async () => {
     const ids = lastActions.map((a) => a.id);
@@ -41,9 +65,9 @@ function showPending(actions) {
       body: JSON.stringify({ ids }),
     });
     const data = await r.json();
-    bubble("bot", "Trash: " + data.trashed + (data.errors?.length ? " · errs: " + data.errors.join("; ") : ""));
+    bubble("bot", "Movidos a papelera: " + data.trashed + (data.errors?.length ? " · errores: " + data.errors.join("; ") : ""));
     showPending([]);
-    setTimeout(() => location.reload(), 800);
+    setTimeout(() => location.reload(), 900);
   };
   document.getElementById("cancel-trash").onclick = () => showPending([]);
 }
@@ -68,30 +92,20 @@ if (form) {
   });
 }
 
-if (q && list) {
-  q.addEventListener("input", () => {
-    const v = q.value.toLowerCase();
-    list.querySelectorAll(".house").forEach((li) => {
-      li.style.display = !v || (li.dataset.text || "").toLowerCase().includes(v) ? "" : "none";
-    });
-  });
-}
-
 const btnSync = document.getElementById("btn-sync");
 if (btnSync) {
   btnSync.onclick = async () => {
     btnSync.disabled = true;
-    btnSync.textContent = "Sync…";
+    btnSync.textContent = "Bajando…";
     try {
       const r = await fetch("/api/sync", { method: "POST" });
       const d = await r.json();
-      bubble("bot", "Sync: +" + d.fetched + " (total " + d.total + ")");
-      setTimeout(() => location.reload(), 600);
+      alert("Correos nuevos: " + d.fetched + " (total " + d.total + ")");
+      location.reload();
     } catch (err) {
-      bubble("bot", "Sync falló: " + err);
-    } finally {
+      alert("Sync falló: " + err);
       btnSync.disabled = false;
-      btnSync.textContent = "Sync IMAP";
+      btnSync.textContent = "Sync";
     }
   };
 }
