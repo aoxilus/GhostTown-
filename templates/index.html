@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GhostTown</title>
+  <link rel="stylesheet" href="/styles.css?v=5" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo">
+      <span class="logo-mark">G</span>
+      <span class="logo-text">GhostTown</span>
+    </div>
+    <div class="searchwrap">
+      <input id="q" type="search" placeholder="Buscar en el correo" />
+    </div>
+    <div class="topbar-actions">
+      <button type="button" id="btn-sync" title="Bajar correo nuevo de Gmail">Sync</button>
+      <button type="button" id="btn-guardian" title="Asistente de limpieza IA">Guardián</button>
+    </div>
+  </header>
+
+  <div id="sync-banner" class="sync-banner hidden">
+    <div class="sync-spinner"></div>
+    <div class="sync-info">
+      <span id="sync-label">Descargando…</span>
+      <div class="sync-track"><div id="sync-fill" class="sync-fill indeterminate"></div></div>
+    </div>
+    <span id="sync-count"></span>
+  </div>
+  <div id="sync-errors" class="sync-errors hidden"></div>
+
+  <div class="layout">
+    <nav class="sidebar">
+      <ul>
+        <li class="nav-item active" data-folder="">
+          <span class="nav-name">Todos</span>
+          <span class="nav-count">{{ total }}</span>
+        </li>
+        {% for f in folders %}
+        <li class="nav-item" data-folder="{{ f.id }}">
+          <span class="nav-name">{{ f.name }}</span>
+          <span class="nav-count">{{ f.remote_count }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      <section class="stats-card">
+        <div class="progress-ring" style="--progress: {{ stats.percent }}%">
+          <span>{{ stats.percent }}%</span>
+        </div>
+        <div>
+          <strong>{{ "{:,}".format(stats.downloaded) }}</strong>
+          <span>de {{ "{:,}".format(stats.remote_total) }}</span>
+        </div>
+        <p>Última actualización<br><time id="last-sync" datetime="{{ stats.last_sync }}">{{ stats.last_sync }}</time></p>
+        {% if stats.full %}
+        <p class="backup-badge ok">✓ FULL BACKUP · {{ stats.disk }} en tu PC</p>
+        {% else %}
+        <p class="backup-badge">Backup parcial {{ stats.percent }}% · {{ stats.disk }}</p>
+        {% endif %}
+      </section>
+      <p class="sidebar-note">Copia local de tu Gmail.<br>Solo lectura.</p>
+    </nav>
+
+    <main class="mail">
+      <div class="pagebar">
+        <span id="page-info">Cargando correos…</span>
+        <div>
+          <button type="button" id="page-prev" aria-label="Página anterior">‹</button>
+          <button type="button" id="page-next" aria-label="Página siguiente">›</button>
+        </div>
+      </div>
+      <ul id="list" class="maillist"></ul>
+      <div class="pagebar pagebar-bottom">
+        <span>250 correos por página</span>
+        <div>
+          <button type="button" id="page-prev-bottom" aria-label="Página anterior">‹</button>
+          <button type="button" id="page-next-bottom" aria-label="Página siguiente">›</button>
+        </div>
+      </div>
+    </main>
+
+    <aside class="guardian hidden" id="guardian">
+      <div class="guardian-head">
+        <h2>Guardián</h2>
+        <button type="button" id="btn-close-guardian">&times;</button>
+      </div>
+      <p class="guardian-tip">Pídeme limpiar: "borra newsletters y anuncios". Nada se borra sin tu confirmación.</p>
+      <div id="log" class="log"></div>
+      <div id="pending" class="pending hidden"></div>
+      <form id="chat-form">
+        <input id="chat-in" autocomplete="off" placeholder="Escribe aquí…" />
+        <button type="submit">Enviar</button>
+      </form>
+    </aside>
+  </div>
+  <script src="/app.js?v=5"></script>
+</body>
+</html>
+
+

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Configurar GhostTown</title>
+  <link rel="stylesheet" href="/styles.css?v=5" />
+</head>
+<body>
+  <div class="setup-wrap">
+    <div class="setup-card wizard">
+      <h1>👻 Vamos a conectar tu Gmail</h1>
+      <p class="sub">Es como darle a GhostTown una <strong>llave de repuesto</strong> de tu correo. Solo lo haces una vez. Sigue los 3 pasos.</p>
+
+      <!-- PASO 1 -->
+      <div class="step" id="wiz-step-1">
+        <div class="step-head"><span class="step-num">1</span><h2>Prende la seguridad de 2 pasos</h2></div>
+        <p class="step-text">Google solo deja crear la llave si tu cuenta tiene la "verificación en 2 pasos" prendida. Si ya la tienes, solo pasa al paso 2.</p>
+        <button type="button" class="open-btn" data-url="https://myaccount.google.com/signinoptions/twosv">Abrir la página de Google →</button>
+        <p class="step-mini">Ahí busca <strong>"Verificación en 2 pasos"</strong> y préndela con tu teléfono. Cuando termines, regresa aquí.</p>
+        <button type="button" class="next-btn" data-next="2">Listo, ya la prendí ✓</button>
+      </div>
+
+      <!-- PASO 2 -->
+      <div class="step hidden" id="wiz-step-2">
+        <div class="step-head"><span class="step-num">2</span><h2>Crea la llave para GhostTown</h2></div>
+        <p class="step-text">Ahora vamos a generar la llave especial (son 16 letras).</p>
+        <button type="button" class="open-btn" data-url="https://myaccount.google.com/apppasswords">Abrir la página de la llave →</button>
+        <ol class="step-list">
+          <li>Donde dice <strong>"Nombre de la app"</strong>, escribe: <code>GhostTown</code></li>
+          <li>Haz clic en <strong>Crear</strong>.</li>
+          <li>Google te muestra <strong>16 letras</strong> en un recuadro amarillo. Cópialas.</li>
+        </ol>
+        <p class="step-mini">¿No te aparece esa página o dice que no está disponible? Casi siempre es porque falta el paso 1, o porque estás usando un correo de escuela/trabajo. Usa tu Gmail personal.</p>
+        <button type="button" class="next-btn" data-next="3">Ya tengo mis 16 letras ✓</button>
+        <button type="button" class="back-btn" data-back="1">← Volver al paso 1</button>
+      </div>
+
+      <!-- PASO 3 -->
+      <div class="step hidden" id="wiz-step-3">
+        <div class="step-head"><span class="step-num">3</span><h2>Pega tus datos</h2></div>
+
+        <label for="s-user">Tu correo Gmail</label>
+        <input id="s-user" type="email" placeholder="tucorreo@gmail.com" autocomplete="username" />
+
+        <label for="s-pass">Las 16 letras que te dio Google</label>
+        <input id="s-pass" type="text" placeholder="abcd efgh ijkl mnop" autocomplete="off" />
+        <p class="hint">Pégalas tal cual; los espacios no importan. No es tu contraseña de siempre.</p>
+
+        <details>
+          <summary>¿Quieres que la IA te ayude a limpiar? (opcional)</summary>
+          <label for="s-key">Clave de OpenAI</label>
+          <input id="s-key" type="password" placeholder="sk-... (déjalo vacío si no la tienes)" autocomplete="off" />
+          <p class="hint">Sin esto GhostTown funciona igual para guardar y leer tu correo.</p>
+        </details>
+
+        <button type="button" id="s-go" class="go-btn">Conectar y guardar mi correo</button>
+        <button type="button" class="back-btn" data-back="2">← Volver al paso 2</button>
+        <p class="setup-status" id="s-status"></p>
+      </div>
+
+      <div class="wizard-dots">
+        <span class="dot active" data-dot="1"></span>
+        <span class="dot" data-dot="2"></span>
+        <span class="dot" data-dot="3"></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showStep(n) {
+      document.querySelectorAll(".step").forEach((s) => s.classList.add("hidden"));
+      document.getElementById("wiz-step-" + n).classList.remove("hidden");
+      document.querySelectorAll(".dot").forEach((d) => {
+        d.classList.toggle("active", Number(d.dataset.dot) <= n);
+      });
+    }
+    document.querySelectorAll(".open-btn").forEach((b) => {
+      b.onclick = () => window.open(b.dataset.url, "_blank");
+    });
+    document.querySelectorAll(".next-btn").forEach((b) => {
+      b.onclick = () => showStep(Number(b.dataset.next));
+    });
+    document.querySelectorAll(".back-btn").forEach((b) => {
+      b.onclick = () => showStep(Number(b.dataset.back));
+    });
+
+    const st = document.getElementById("s-status");
+    const btn = document.getElementById("s-go");
+    btn.onclick = async () => {
+      const user = document.getElementById("s-user").value.trim();
+      const pass = document.getElementById("s-pass").value.replace(/\s/g, "");
+      const key = document.getElementById("s-key").value.trim();
+      if (!user || !pass) {
+        st.className = "setup-status err";
+        st.textContent = "Escribe tu Gmail y pega las 16 letras.";
+        return;
+      }
+      btn.disabled = true;
+      st.className = "setup-status";
+      st.textContent = "Revisando con Google… espera un momento.";
+      try {
+        const r = await fetch("/api/setup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user, password: pass, openai_key: key }),
+        });
+        const d = await r.json();
+        if (!d.ok) {
+          st.className = "setup-status err";
+          st.textContent = "❌ " + (d.error || "No se pudo conectar. Revisa el correo y las 16 letras.");
+          btn.disabled = false;
+          return;
+        }
+        st.className = "setup-status ok";
+        st.textContent = "✓ ¡Conectado! Bajando tus primeros correos…";
+        try { await fetch("/api/sync?limit=200", { method: "POST" }); } catch (e) {}
+        location.href = "/";
+      } catch (e) {
+        st.className = "setup-status err";
+        st.textContent = "❌ Algo falló. Intenta de nuevo.";
+        btn.disabled = false;
+      }
+    };
+  </script>
+</body>
+</html>

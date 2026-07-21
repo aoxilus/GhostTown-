@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ m.subject }} — GhostTown</title>
+  <link rel="stylesheet" href="/styles.css?v=2" />
+</head>
+<body class="thread-page">
+  <header class="topbar">
+    <div class="logo">
+      <span class="logo-mark">G</span>
+      <span class="logo-text">GhostTown</span>
+    </div>
+    <div class="searchwrap"><a class="backlink" href="/">&larr; Volver a la lista</a></div>
+    <div class="topbar-actions"></div>
+  </header>
+
+  <article class="reader">
+    <h1>{{ m.subject }}</h1>
+    <div class="msg-head">
+      <div class="avatar">{{ (m.from or '?')[0]|upper }}</div>
+      <div class="msg-meta">
+        <p class="msg-from">{{ m.from }}</p>
+        <p class="msg-to">para {{ m.to|join(', ') if m.to else 'mí' }}</p>
+      </div>
+      <p class="msg-date">{{ m.date or '' }}</p>
+    </div>
+    {% if m.attachments %}
+    <div class="atts">
+      {% for a in m.attachments %}
+      <a class="att-chip" href="/attachments/{{ a.path }}" download>{{ a.filename }}</a>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <div class="body">{{ body_html | safe }}</div>
+  </article>
+</body>
+</html>
+
