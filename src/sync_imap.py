@@ -63,15 +63,26 @@ def sync(folders: list[str] | None = None, limit: int | None = None) -> dict:
         available = set(available_list)
         folder_totals = state.setdefault("folder_totals", {})
         for name in available_list:
+            if name in {"[Gmail]", "[Gmail]/Trash", "[Gmail]/Spam", "[Gmail]/Drafts"}:
+                continue
             try:
                 folder_totals[name] = mb.folder.status(name, ["MESSAGES"])["MESSAGES"]
             except Exception:
                 continue
 
         if not folders:
-            # Never copy Trash / Spam / Drafts by default
-            excluded = {"[Gmail]/Trash", "[Gmail]/Spam", "[Gmail]/Drafts"}
-            custom = [name for name in available_list if not name.startswith("[Gmail]/")]
+            # Never copy Trash / Spam / Drafts / Gmail namespace root
+            excluded = {
+                "[Gmail]",
+                "[Gmail]/Trash",
+                "[Gmail]/Spam",
+                "[Gmail]/Drafts",
+            }
+            custom = [
+                name
+                for name in available_list
+                if not name.startswith("[Gmail]") and name not in excluded
+            ]
             preferred = [
                 "[Gmail]/All Mail",
                 "INBOX",
@@ -86,16 +97,22 @@ def sync(folders: list[str] | None = None, limit: int | None = None) -> dict:
             )
 
         for folder in folders:
-            if folder not in available:
-                errors.append(f"skip missing folder: {folder}")
+            if folder not in available or folder in {"[Gmail]", "[Gmail]/Trash", "[Gmail]/Spam", "[Gmail]/Drafts"}:
+                if folder not in available:
+                    errors.append(f"skip missing folder: {folder}")
                 continue
-            mb.folder.set(folder)
+            try:
+                mb.folder.set(folder)
+            except Exception as e:
+                errors.append(f"skip {folder}: {e}")
+                continue
             seen = set(state.setdefault("uids", {}).setdefault(folder, []))
             all_uids = mb.uids(AND(all=True))
             new_uids = [u for u in all_uids if u not in seen]
             new_uids.reverse()  # newest first
             if limit:
-                new_uids = new_uids[: limit - fetched]
+                remain = max(0, limit - fetched)
+                new_uids = new_uids[:remain]
             print(f"{folder}: {len(new_uids)} nuevos de {len(all_uids)}", flush=True)
 
             CHUNK = 50
