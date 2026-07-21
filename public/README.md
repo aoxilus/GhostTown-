@@ -30,7 +30,4 @@ Tus correos y credenciales permanecen en tu computadora. Nunca se incluyen en lo
 - 🤖 Optional OpenAI-assisted cleanup with confirmation / Limpieza opcional con OpenAI y confirmación
 - 🔒 Local credentials outside the app folder / Credenciales locales fuera de la app
 
-> **ES:** En México, si algo *trae hasta aguacate*, quedó nice.  
-> **EN:** In Mexico, if it *even comes with avocado*, it turned out nice.
-
 <p align="center">Hecho con 🥑 por <a href="https://github.com/aoxilus"><b>aoxilus</b></a></p>
