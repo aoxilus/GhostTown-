@@ -6,5 +6,6 @@
 | [UI.md](./UI.md) | Bandeja, stats, paginación |
 | [SECURITY.md](./SECURITY.md) | Secretos y protecciones |
 | [AI_SECURITY.md](./AI_SECURITY.md) | Reglas para agentes de IA |
+| [RELEASE_ARCHITECTURE.md](./RELEASE_ARCHITECTURE.md) | Separación privado/público y deploy |
 
 Raíz: [`README.md`](../README.md) · [`AGENTS.md`](../AGENTS.md)
