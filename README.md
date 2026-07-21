@@ -1,4 +1,4 @@
-# 👻 GhostTown
+# 👻 GhostTown 🥑
 
 **EN:** Local Gmail backup that looks like Gmail — but lives on your PC. Free up Gmail / Drive space without losing your mail.  
 **ES:** Copia local de Gmail con layout tipo Gmail — pero vive en tu PC. Libera espacio en Gmail / Drive sin perder tu correo.
@@ -6,6 +6,17 @@
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-local-lightgrey.svg)](#)
 [![Platform](https://img.shields.io/badge/Windows-PowerShell-0078D4.svg)](#)
+[![Aguacate](https://img.shields.io/badge/%F0%9F%A5%91%20aguacate-approved-568203.svg)](#-aguacate--the-avocado-seal)
+[![by aoxilus](https://img.shields.io/badge/by-aoxilus-000000.svg)](https://github.com/aoxilus)
+
+---
+
+## 🥑 Aguacate / The avocado seal
+
+> **ES:** En México, cuando algo está bien hecho o vale la pena, decimos que *"trae hasta aguacate"* 🥑. Es mi sello: si mi software lleva aguacate, es porque quedó nice. **GhostTown trae aguacate.**  
+> **EN:** In Mexico, when something is well made or worth it, we say it *"even comes with avocado"* 🥑. It's my seal: if my software carries the avocado, it means it turned out nice. **GhostTown is aguacate-approved.**
+>
+> — 🥑 *aoxilus*
 
 ---
 
@@ -206,3 +217,7 @@ GhostTown-/
 
 Personal / educational use. You are responsible for your own Gmail credentials and what you delete.  
 Uso personal / educativo. Tú eres responsable de tus credenciales y de lo que borres.
+
+---
+
+<p align="center">Hecho con 🥑 por <a href="https://github.com/aoxilus"><b>aoxilus</b></a> · <i>si trae aguacate, quedó nice</i></p>

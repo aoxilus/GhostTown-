@@ -125,12 +125,39 @@ def build() -> dict:
         state.get("uids", {}).get("[Gmail]/All Mail", [])
     ) or downloaded
     percent = round(min(100, downloaded * 100 / remote_total), 1) if remote_total else 0
+
+    disk_bytes = sum(f.stat().st_size for f in DATA.rglob("*") if f.is_file())
+    disk_human = f"{disk_bytes / 1024**3:.2f} GB" if disk_bytes >= 1024**3 else f"{disk_bytes / 1024**2:.0f} MB"
+
     stats = {
         "downloaded": downloaded,
         "remote_total": remote_total,
         "percent": percent,
         "last_sync": state.get("last_sync", "Nunca"),
+        "disk": disk_human,
+        "full": percent >= 100,
     }
+
+    # Backup log: historial de respaldos en data/backup_log.json
+    log_path = DATA / "backup_log.json"
+    log = []
+    if log_path.exists():
+        try:
+            log = json.loads(log_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            log = []
+    log.append(
+        {
+            "date": state.get("last_sync", ""),
+            "type": "full backup" if percent >= 100 else "partial backup",
+            "messages": downloaded,
+            "of": remote_total,
+            "percent": percent,
+            "disk": disk_human,
+        }
+    )
+    log = log[-100:]
+    log_path.write_text(json.dumps(log, ensure_ascii=False, indent=1), encoding="utf-8")
 
     message_rows = [
         {

@@ -9,6 +9,11 @@
 - Anillo **%** = descargados / total remoto (All Mail)
 - Números: `descargados de total`
 - **Última actualización** = `data/state.json` → `last_sync`
+- Badge **✓ FULL BACKUP · X GB** (verde si 100%, ámbar si parcial)
+
+## Backup log
+- `data/backup_log.json` — historial (cada `build` agrega entrada, máx 100)
+- Campos: `date`, `type` (full/partial), `messages`, `of`, `percent`, `disk`
 
 ## Paginación
 - **250 correos por página**

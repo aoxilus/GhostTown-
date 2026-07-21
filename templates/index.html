@@ -54,6 +54,11 @@
           <span>de {{ "{:,}".format(stats.remote_total) }}</span>
         </div>
         <p>Última actualización<br><time id="last-sync" datetime="{{ stats.last_sync }}">{{ stats.last_sync }}</time></p>
+        {% if stats.full %}
+        <p class="backup-badge ok">✓ FULL BACKUP · {{ stats.disk }} en tu PC</p>
+        {% else %}
+        <p class="backup-badge">Backup parcial {{ stats.percent }}% · {{ stats.disk }}</p>
+        {% endif %}
       </section>
       <p class="sidebar-note">Copia local de tu Gmail.<br>Solo lectura.</p>
     </nav>

@@ -5,6 +5,7 @@ Cualquier agente de IA (Cursor, Copilot, Claude, Codex, etc.) DEBE seguir estas 
 
 **Documentación completa:**
 
+- [`docs/VISION.md`](docs/VISION.md) — idea del producto (respaldo → limpieza; qué conservar)
 - [`docs/AI_SECURITY.md`](docs/AI_SECURITY.md) — reglas obligatorias para AIs (léelo primero)
 - [`docs/SECURITY.md`](docs/SECURITY.md) — modelo de amenazas y setup humano
 - [`docs/README.md`](docs/README.md) — índice
@@ -42,5 +43,5 @@ Está TERMINANTEMENTE PROHIBIDO agregar/commitear/pushear:
 - `src/` - código Python (IMAP sync, limpieza con IA, servidor web)
 - `templates/` - frontend HTML/JS/CSS
 - `scripts/` - scripts de setup y arranque (PowerShell)
-- `docs/` - documentación de seguridad (humanos + AIs)
+- `docs/` - visión, UI, seguridad (humanos + AIs)
 - `data/`, `ghosttown/` - datos locales generados (NUNCA en git)
