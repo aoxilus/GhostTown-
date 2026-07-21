@@ -50,12 +50,33 @@ function Invoke-Gh {
 }
 
 function Ensure-Remote([string]$Name, [string]$Url) {
-    $existing = git remote get-url $Name 2>$null
-    if ($LASTEXITCODE -ne 0) {
+    $existing = $null
+    $prev = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        $existing = (& git remote get-url $Name 2>$null | Out-String).Trim()
+        $remoteMissing = ($LASTEXITCODE -ne 0)
+    }
+    finally {
+        $ErrorActionPreference = $prev
+    }
+    if ($remoteMissing) {
         Invoke-Git remote add $Name $Url
     }
     elseif ($existing -ne $Url) {
         Invoke-Git remote set-url $Name $Url
+    }
+}
+
+function Test-GhReleaseExists([string]$Repo, [string]$Tag) {
+    $prev = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        & gh release view $Tag --repo $Repo 1>$null 2>$null
+        return ($LASTEXITCODE -eq 0)
+    }
+    finally {
+        $ErrorActionPreference = $prev
     }
 }
 
@@ -127,8 +148,7 @@ if ($LASTEXITCODE -ne 0 -or $visibility -ne "PUBLIC") {
     throw "Public repository '$PublicRepo' does not exist or is not public."
 }
 
-gh release view $Version --repo $PublicRepo 2>$null | Out-Null
-if ($LASTEXITCODE -eq 0) {
+if (Test-GhReleaseExists $PublicRepo $Version) {
     throw "Release '$Version' already exists. Versions are immutable."
 }
 
