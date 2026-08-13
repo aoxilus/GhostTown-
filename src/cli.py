@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import multiprocessing
 import webbrowser
 
 import uvicorn
@@ -14,6 +15,7 @@ from .sync_imap import sync, verify
 
 
 def main():
+    multiprocessing.freeze_support()
     p = argparse.ArgumentParser(prog="gmailghosttown")
     sub = p.add_subparsers(dest="cmd", required=True)
 
@@ -46,7 +48,7 @@ def main():
         url = f"http://127.0.0.1:{settings.port}"
         if not args.no_browser:
             webbrowser.open(url)
-        uvicorn.run("src.server:app", host="127.0.0.1", port=settings.port, reload=False)
+        uvicorn.run(srvmod.app, host="127.0.0.1", port=settings.port, reload=False)
 
 
 if __name__ == "__main__":

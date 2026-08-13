@@ -1,12 +1,11 @@
-# 👻 GhostTown 🥑
+# 👻 GhostTown
 
 **EN:** Local Gmail backup that looks like Gmail — but lives on your PC. Free up Gmail / Drive space without losing your mail.  
 **ES:** Copia local de Gmail con layout tipo Gmail — pero vive en tu PC. Libera espacio en Gmail / Drive sin perder tu correo.
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-local-lightgrey.svg)](#)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Windows-PowerShell-0078D4.svg)](#)
-[![Aguacate](https://img.shields.io/badge/%F0%9F%A5%91%20aguacate-approved-568203.svg)](#)
 [![by aoxilus](https://img.shields.io/badge/by-aoxilus-000000.svg)](https://github.com/aoxilus)
 
 ---
@@ -76,8 +75,9 @@ Gmail (IMAP)  ──sync──►  Your PC (data/)  ──build──►  GhostT
 | 🖥️ Gmail-like inbox on `http://127.0.0.1:8765` | 🖥️ Bandeja tipo Gmail en `http://127.0.0.1:8765` |
 | 📎 Attachments saved on disk | 📎 Adjuntos guardados en disco |
 | 🔍 Search + folder filters | 🔍 Búsqueda + filtros por carpeta |
+| 🌙 Dark / light mode toggle (persists per user) | 🌙 Modo oscuro / claro (se recuerda por usuario) |
 | 🧙 Setup wizard in the browser if credentials are missing | 🧙 Asistente web si faltan credenciales |
-| 🪟 Windows GUI launcher (`GhostTown.bat`) | 🪟 Lanzador GUI en Windows (`GhostTown.bat`) |
+| 🪟 Windows `.bat` launcher + standalone `.exe` builder | 🪟 Lanzador `.bat` + constructor de `.exe` portátil |
 | 🤖 Optional AI cleanup (`gpt-4.1-mini`) — confirm before trash | 🤖 Limpieza IA opcional (`gpt-4.1-mini`) — confirmas antes de borrar |
 | 🔒 Secrets outside the repo (`%USERPROFILE%\.gmailbot\.env`) | 🔒 Secretos fuera del repo (`%USERPROFILE%\.gmailbot\.env`) |
 
@@ -88,12 +88,22 @@ Gmail (IMAP)  ──sync──►  Your PC (data/)  ──build──►  GhostT
 
 ## 🚀 Quick start / Inicio rápido
 
-### Windows (easiest / lo más fácil)
+### Windows — double-click launcher (easiest / lo más fácil)
 
 1. Install **Python 3.11+** from [python.org](https://www.python.org/downloads/) (check *Add to PATH*).
-2. Double-click **`GhostTown.bat`**.
-3. Enter your Gmail + App Password in the window (or in the browser wizard).
+2. Double-click **`GhostTown.bat`** — it sets up everything automatically.
+3. Enter your Gmail + App Password in the browser wizard.
 4. Browse your mail at **http://127.0.0.1:8765**
+
+### Windows — standalone `.exe` (no Python required)
+
+> Run this once to build a `dist/GhostTown.exe` that anyone can double-click:
+
+```powershell
+.\build_exe.ps1
+```
+
+The resulting `.exe` stores emails in the same folder where you place it — fully portable.
 
 ### CLI
 
@@ -188,10 +198,14 @@ Protections in this repo:
 ## 📁 Project layout / Estructura
 
 ```
-GhostTown-/
-├── GhostTown.bat              # Double-click launcher (Windows)
+GhostTown/
+├── GhostTown.bat              # Double-click launcher (Windows, requires Python)
+├── build_exe.ps1              # Build a standalone GhostTown.exe with PyInstaller
+├── LICENSE                    # MIT
 ├── AGENTS.md                  # Short rules for AI agents
 ├── docs/
+│   ├── VISION.md              # Project idea / Idea del proyecto
+│   ├── UI.md                  # UI layout and design
 │   ├── SECURITY.md            # Security model (humans)
 │   └── AI_SECURITY.md         # Hard rules for other AIs
 ├── scripts/
@@ -202,9 +216,15 @@ GhostTown-/
 │   ├── export_html.py         # Build Gmail-like HTML
 │   ├── server.py              # Local web UI + setup wizard + AI API
 │   ├── ai_clean.py            # Optional cleanup chat
-│   └── cli.py
+│   ├── config.py              # Settings + path resolution (dev & .exe modes)
+│   └── cli.py                 # Entry point: sync | build | serve
 ├── templates/                 # UI (index, thread, setup, CSS/JS)
-├── .env.example               # Placeholders only
+│   ├── index.html             # Main inbox (👻 logo, dark/light toggle)
+│   ├── thread.html            # Email reader
+│   ├── setup.html             # First-run wizard
+│   ├── styles.css             # Styles + CSS dark mode variables
+│   └── app.js                 # UI logic + theme persistence
+├── .env.example               # Placeholders only — copy to ~/.gmailbot/.env
 ├── data/                      # Local mail cache (gitignored)
 └── ghosttown/                 # Generated HTML site (gitignored)
 ```
@@ -217,10 +237,13 @@ GhostTown-/
 - [ ] Better Spanish/English UI toggle
 - [ ] Export selected threads to Markdown
 - [ ] Safer bulk cleanup presets (newsletters / promos)
+- [ ] One-click GitHub release with pre-built `.exe`
 
 ---
 
 ## 📜 License / Licencia
+
+MIT License — see [LICENSE](LICENSE).
 
 Personal / educational use. You are responsible for your own Gmail credentials and what you delete.  
 Uso personal / educativo. Tú eres responsable de tus credenciales y de lo que borres.

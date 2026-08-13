@@ -1,3 +1,19 @@
+// Theme logic
+const savedTheme = localStorage.getItem("ghosttown-theme");
+if (savedTheme === "dark" || (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+  document.documentElement.classList.add("dark");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const btnTheme = document.getElementById("btn-theme");
+  if (btnTheme) {
+    btnTheme.onclick = () => {
+      const isDark = document.documentElement.classList.toggle("dark");
+      localStorage.setItem("ghosttown-theme", isDark ? "dark" : "light");
+    };
+  }
+});
+
 const log = document.getElementById("log");
 const pending = document.getElementById("pending");
 const form = document.getElementById("chat-form");

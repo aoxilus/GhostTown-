@@ -1,11 +1,18 @@
 import os
+import sys
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-ROOT = Path(__file__).resolve().parent.parent
+if getattr(sys, 'frozen', False):
+    # PyInstaller bundle
+    ROOT = Path(sys.executable).parent
+    TEMPLATES = Path(sys._MEIPASS) / "templates"
+else:
+    ROOT = Path(__file__).resolve().parent.parent
+    TEMPLATES = ROOT / "templates"
+
 DATA = ROOT / "data"
 GHOST = ROOT / "ghosttown"
-TEMPLATES = ROOT / "templates"
 INDEX = DATA / "index.json"
 STATE = DATA / "state.json"
 

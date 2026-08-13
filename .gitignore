@@ -49,6 +49,12 @@ env/
 *.egg-info/
 .pytest_cache/
 
+# --- PyInstaller build artifacts ---
+build/
+dist/
+*.spec
+*.exe
+
 # --- Sistema / editor ---
 .DS_Store
 Thumbs.db

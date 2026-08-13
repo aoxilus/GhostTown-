@@ -1,142 +1,153 @@
-# AI SECURITY — GhostTown (OBLIGATORIO)
+# AI SECURITY — GhostTown (MANDATORY / OBLIGATORIO)
 
-> **Audience:** Cursor, Copilot, Claude, Codex, Devin, Aider, OpenHands, y cualquier otro agente.  
-> **Idioma:** ES/EN — las reglas aplican igual.  
-> **Prioridad:** Si hay conflicto entre “ser útil” y estas reglas, **ganan estas reglas**.
+> **Audience / Audiencia:** Cursor, Copilot, Claude, Codex, Devin, Aider, OpenHands, and any other agent / y cualquier otro agente.  
+> **Language / Idioma:** EN/ES — rules apply equally / las reglas aplican igual.  
+> **Priority / Prioridad:** If there is a conflict between "being helpful" and these rules, **these rules win / ganan estas reglas**.
 
-Este repo (`GhostTown-` / gmailBot) maneja **correo personal** y **credenciales de Gmail**. Un commit o push incorrecto es un incidente de seguridad.
+**EN**: This repo (`GhostTown-` / gmailBot) handles **personal email** and **Gmail credentials**. An incorrect commit or push is a security incident.
+**ES**: Este repo (`GhostTown-` / gmailBot) maneja **correo personal** y **credenciales de Gmail**. Un commit o push incorrecto es un incidente de seguridad.
 
-Lee también: [`SECURITY.md`](./SECURITY.md) · [`AGENTS.md`](../AGENTS.md)
+Read also / Lee también: [`SECURITY.md`](./SECURITY.md) · [`AGENTS.md`](../AGENTS.md)
 
 ---
 
-## HARD RULES (no negociables)
+## HARD RULES (Non-negotiable / no negociables)
 
-### 1. Nunca subir secretos ni correo
+### 1. Never upload secrets or email / Nunca subir secretos ni correo
 
-**PROHIBIDO** `git add` / `commit` / `push` de:
+**PROHIBITED / PROHIBIDO** `git add` / `commit` / `push` of:
 
-| Patrón | Motivo |
+| Pattern / Patrón | Reason / Motivo |
 |--------|--------|
-| `.env`, `.env.*`, `*.env` | Credenciales (solo se permite `.env.example` con placeholders) |
-| `data/`, `ghosttown/`, `attachments/` | Correos y HTML personal |
-| `*.eml`, `*.mbox`, `*.msg` | Mail crudo |
-| `*.pdf`, `*.csv`, `*.ics`, `*.xlsx`, `*.xls`, `*.doc`, `*.docx` | Adjuntos |
+| `.env`, `.env.*`, `*.env` | Credentials (only `.env.example` with placeholders is allowed) |
+| `data/`, `ghosttown/`, `attachments/` | Personal emails and HTML / Correos y HTML personal |
+| `*.eml`, `*.mbox`, `*.msg` | Raw mail / Mail crudo |
+| `*.pdf`, `*.csv`, `*.ics`, `*.xlsx`, `*.xls`, `*.doc`, `*.docx` | Attachments / Adjuntos |
 | `credentials*.json`, `token*.json`, `client_secret*.json` | OAuth / tokens |
-| `*.key`, `*.pem`, `*.p12`, `*.pfx` | Claves |
-| Cualquier archivo con passwords, API keys, app-passwords reales | Secretos |
+| `*.key`, `*.pem`, `*.p12`, `*.pfx` | Keys / Claves |
+| Any file with passwords, API keys, real app-passwords | Secrets / Secretos |
 
-### 2. Comandos git seguros
+### 2. Safe git commands / Comandos git seguros
 
 ```
 ❌ git add .
 ❌ git add -A
 ❌ git add --all
-❌ git commit --no-verify    (salvo que el usuario lo pida EXPLÍCITAMENTE)
-❌ git push --force a main/master sin aviso fuerte
+❌ git commit --no-verify    (unless EXPLICITLY requested by the user)
+❌ git push --force to main/master without strong warning
 
 ✅ git add src/foo.py templates/bar.html
-✅ git status   antes de commit y antes de push
-✅ git diff --cached   antes de push
+✅ git status   before commit and before push
+✅ git diff --cached   before push
 ```
 
-### 3. No filtrar secretos en la conversación
+### 3. Do not leak secrets in conversation / No filtrar secretos en la conversación
 
+**EN**:
+- **NEVER** print the real content of `.env`, App Passwords, or API keys.
+- If you need to confirm they exist: say "the file exists / is configured", without values.
+- Do not paste secrets in commits, issues, PRs, logs, or error messages.
+
+**ES**:
 - **NUNCA** imprimas el contenido real de `.env`, App Passwords, ni API keys.
 - Si necesitas confirmar que existen: di “el archivo existe / está configurado”, sin valores.
 - No pegues secretos en commits, issues, PRs, logs, ni mensajes de error.
 
-### 4. Dónde están los secretos reales
+### 4. Where real secrets live / Dónde están los secretos reales
 
 ```
-%USERPROFILE%\.gmailbot\.env     ← producción (fuera del repo y de OneDrive)
-<repo>/.env                      ← fallback local (gitignored)
-<repo>/.env.example              ← SOLO placeholders (sí va a git)
+%USERPROFILE%\.gmailbot\.env     ← production (outside the repo and OneDrive)
+<repo>/.env                      ← local fallback (gitignored)
+<repo>/.env.example              ← ONLY placeholders (does go to git)
 ```
 
-Override opcional: variable `GMAILBOT_ENV_FILE`.
+**EN**: Optional override: `GMAILBOT_ENV_FILE` variable. Loaded in: `src/config.py` → `_resolve_env_file()`.
+**ES**: Override opcional: variable `GMAILBOT_ENV_FILE`. Carga: `src/config.py` → `_resolve_env_file()`.
 
-Carga: `src/config.py` → `_resolve_env_file()`.
+### 5. Interpreting ambiguous requests / Interpretación de pedidos ambiguos
 
-### 5. Interpretación de pedidos ambiguos
-
-| Usuario dice | Tú haces |
+| User says / Usuario dice | You do / Tú haces |
 |--------------|----------|
-| “sube todo” / “push everything” | Solo código: `src/`, `templates/`, `scripts/`, docs, config **no sensible** |
-| “commit all” | Misma interpretación; pregunta si hay duda |
-| “incluye data/” o “sube mis correos” | **Rechaza** y explica por qué |
+| "push everything" / "sube todo" | Only code: `src/`, `templates/`, `scripts/`, docs, **non-sensitive** config |
+| "commit all" | Same interpretation; ask if in doubt / Misma interpretación; pregunta si hay duda |
+| "include data/" or "upload my emails" | **Reject** and explain why / **Rechaza** y explica por qué |
 
 ---
 
-## Checklist antes de CADA commit
+## Checklist before EVERY commit / Checklist antes de CADA commit
 
-Copia mentalmente:
-
-```
-[ ] ¿Corrí git status?
-[ ] ¿Hay .env, data/, ghosttown/, adjuntos o credentials en staging? → QUITAR
-[ ] ¿Agregué archivos por nombre (no git add .)?
-[ ] ¿El mensaje de commit menciona secretos o paths sensibles? → No
-[ ] ¿El pre-commit hook está activo? (core.hooksPath = .githooks)
-```
-
-Antes de **push**:
+**EN** Mentally check:
+**ES** Copia mentalmente:
 
 ```
-[ ] git status limpio de sensibles
-[ ] git diff --cached revisado
-[ ] Nada de la lista prohibida en el diff
+[ ] Did I run `git status`? / ¿Corrí git status?
+[ ] Are `.env`, `data/`, `ghosttown/`, attachments or credentials in staging? → REMOVE THEM
+[ ] Did I add files by name (not `git add .`)?
+[ ] Does the commit message mention secrets or sensitive paths? → No
+[ ] Is the pre-commit hook active? (`core.hooksPath = .githooks`)
+```
+
+Before **push** / Antes de **push**:
+
+```
+[ ] `git status` clear of sensitive files
+[ ] `git diff --cached` reviewed
+[ ] Nothing from the prohibited list in the diff
 ```
 
 ---
 
-## Si detectas un posible leak
+## If you detect a possible leak / Si detectas un posible leak
 
-1. **DETENTE** — no hagas push.
-2. Avisa al usuario con claridad (sin repetir el secreto).
-3. Sugiere: revocar App Password / API key.
-4. **No** reescribas historial git sin confirmación explícita del usuario.
+1. **STOP / DETENTE** — do not push / no hagas push.
+2. Warn the user clearly (without repeating the secret) / Avisa al usuario con claridad.
+3. Suggest: revoke App Password / API key.
+4. **Do not** rewrite git history without explicit user confirmation.
 
 ---
 
-## Protecciones del repo (no las desactives)
+## Repo Protections (do not disable) / Protecciones del repo
 
-| Capa | Ubicación |
+| Layer / Capa | Location / Ubicación |
 |------|-----------|
 | Ignore | `.gitignore` |
 | Hook | `.githooks/pre-commit` + `git config core.hooksPath .githooks` |
 | Cursor always-on | `.cursor/rules/seguridad.mdc` |
 | Agent entrypoint | `AGENTS.md` |
-| Docs | `docs/SECURITY.md`, este archivo |
+| Docs | `docs/SECURITY.md`, this file / este archivo |
 
-El hook aborta commits con rutas/patrones prohibidos. Si falla el hook: **arregla el staging**, no uses `--no-verify`.
+**EN**: The hook aborts commits with prohibited paths/patterns. If the hook fails: **fix the staging**, do not use `--no-verify`.
+**ES**: El hook aborta commits con rutas/patrones prohibidos. Si falla el hook: **arregla el staging**, no uses `--no-verify`.
 
 ---
 
-## Qué SÍ puedes tocar / subir
+## What you CAN touch / upload (Qué SÍ puedes tocar)
 
-- `src/**/*.py` (código; sin hardcodear secretos)
+- `src/**/*.py` (code; no hardcoded secrets)
 - `templates/**`
 - `scripts/**`
 - `docs/**`
 - `README.md`, `AGENTS.md`, `.env.example`, `requirements.txt`
 - `.gitignore`, `.githooks/**`, `.cursor/rules/**`
 
-Al editar `config.py` o setup: mantén la resolución de env externo; no muevas secretos de vuelta al repo.
+**EN**: When editing `config.py` or setup: keep the external env resolution; do not move secrets back into the repo.
+**ES**: Al editar `config.py` o setup: mantén la resolución de env externo; no muevas secretos de vuelta al repo.
 
 ---
 
-## Self-test rápido (para el agente)
+## Quick self-test (for the agent) / Self-test rápido
 
-Antes de afirmar “estamos seguros”, verifica mentalmente:
+**EN**: Before claiming "we are safe", mentally verify:
+**ES**: Antes de afirmar “estamos seguros”, verifica mentalmente:
 
-1. ¿Los secretos están fuera del tree trackeado?
-2. ¿`.gitignore` cubre data + env?
-3. ¿Hook instalado?
-4. ¿Historial sin `.env` / passwords reales? (si no estás seguro: `git log --all -- .env`)
+1. Are secrets outside the tracked tree? / ¿Los secretos están fuera del tree trackeado?
+2. Does `.gitignore` cover data + env? / ¿`.gitignore` cubre data + env?
+3. Is the hook installed? / ¿Hook instalado?
+4. Is history free of `.env` or real passwords? (if unsure: `git log --all -- .env`)
 
-Si algo falla → reporta al usuario; no asumas.
+**EN**: If anything fails → report to user; do not assume.
+**ES**: Si algo falla → reporta al usuario; no asumas.
 
 ---
 
-**FIN.** Ante la duda: no agregues, no committees, no pushees, pregunta.
+**END / FIN.** When in doubt: do not add, do not commit, do not push, just ask. / Ante la duda: no agregues, no committees, no pushees, pregunta.

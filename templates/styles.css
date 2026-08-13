@@ -9,6 +9,16 @@
   --hover: #f2f6fc;
   --chip: #e8f0fe;
 }
+:root.dark {
+  --bg: #202124;
+  --white: #2d2e30;
+  --ink: #e8eaed;
+  --gray: #9aa0a6;
+  --line: #5f6368;
+  --blue: #8ab4f8;
+  --hover: #3c4043;
+  --chip: #3c4043;
+}
 
 * { box-sizing: border-box; }
 body {
@@ -35,10 +45,7 @@ a { color: inherit; text-decoration: none; }
 .logo-mark {
   width: 32px; height: 32px;
   display: grid; place-items: center;
-  background: var(--ink);
-  color: #fff;
-  border-radius: 50%;
-  font-weight: 700;
+  font-size: 22px;
 }
 .logo-text { font-size: 20px; color: var(--gray); }
 .searchwrap { flex: 1; max-width: 720px; }
