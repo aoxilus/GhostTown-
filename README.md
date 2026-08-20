@@ -57,3 +57,7 @@ Tus correos y credenciales permanecen en tu computadora. Nunca se incluyen en es
 | [docs/SECURITY.md](docs/SECURITY.md) | Secretos y protecciones |
 
 <p align="center"><a href="https://github.com/aoxilus"><b>Aoxilus</b></a> 🥑</p>
+
+## License / Licencia
+
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) — Attribution-NonCommercial-ShareAlike. See [LICENSE](LICENSE).
